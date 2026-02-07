@@ -1,0 +1,99 @@
+# CW LLM Gateway API
+
+OpenAI 兼容的 LLM 网关，部署在 Cloudflare Workers 上。
+
+## 接口地址
+
+POST https://llm-gateway.chocyt.com/v1/chat/completions
+
+## 鉴权
+
+所有请求需要在 Header 中携带 Bearer Token：
+
+    Authorization: Bearer <GATEWAY_API_KEY>
+
+缺失或错误的 key 会返回 401。
+OPTIONS 预检请求不需要鉴权。
+
+## 支持的模型
+
+- doubao-seed-1.8
+
+## 请求格式
+
+Content-Type: application/json
+
+请求体字段：
+
+| 字段        | 类型      | 必填 | 说明                       |
+|-------------|-----------|------|----------------------------|
+| model       | string    | 是   | 模型名称                   |
+| messages    | Message[] | 是   | 对话消息列表               |
+| temperature | number    | 否   | 控制生成随机性，默认由模型决定 |
+| stream      | boolean   | 否   | 是否使用 SSE 流式返回，默认 false |
+| reasoning_effort | string | 否 | 推理努力程度，透传给后端模型 |
+
+Message 结构：
+
+| 字段    | 类型   | 说明                          |
+|---------|--------|-------------------------------|
+| role    | string | system / user / assistant     |
+| content | string | 消息内容                      |
+
+## 请求示例
+
+    curl https://llm-gateway.chocyt.com/v1/chat/completions \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer <GATEWAY_API_KEY>" \
+      -d '{
+        "model": "doubao-seed-1.8",
+        "messages": [
+          {"role": "system", "content": "You are a helpful assistant."},
+          {"role": "user", "content": "Hello!"}
+        ],
+        "temperature": 0.7
+      }'
+
+流式请求：
+
+    curl https://llm-gateway.chocyt.com/v1/chat/completions \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer <GATEWAY_API_KEY>" \
+      -d '{
+        "model": "doubao-seed-1.8",
+        "messages": [{"role": "user", "content": "Hello!"}],
+        "stream": true
+      }'
+
+## 响应格式
+
+成功时返回 200，响应体为 OpenAI 兼容的 JSON 格式。
+流式请求返回 text/event-stream（SSE）。
+
+所有响应包含 CORS 头：
+
+    Access-Control-Allow-Origin: *
+    Access-Control-Allow-Methods: POST, OPTIONS
+    Access-Control-Allow-Headers: Content-Type, Authorization
+
+## 错误响应
+
+格式统一为：
+
+    {
+      "error": {
+        "message": "<错误信息>",
+        "type": "invalid_request_error"
+      }
+    }
+
+常见错误码：
+
+| 状态码 | 说明                         |
+|--------|------------------------------|
+| 401    | 缺失或错误的 API Key        |
+| 400    | 请求体 JSON 格式错误        |
+| 400    | 缺少 model 或 messages 字段 |
+| 400    | 不支持的模型                 |
+| 405    | 请求方法不是 POST           |
+| 404    | 路径不存在                   |

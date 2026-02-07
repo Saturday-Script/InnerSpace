@@ -1,0 +1,1883 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>InnerSpace - 构建你的数字化人格副本</title>
+        <style>
+            /* --- 1. 全局设置 --- */
+            body {
+                margin: 0;
+                padding: 0;
+                font-family:
+                    "Montserrat", "PingFang SC", "Microsoft YaHei", sans-serif;
+                background: #fdfbf7;
+                min-height: 100vh;
+                color: #4a4a4a;
+                overflow-x: hidden;
+            }
+
+            /* --- 2. 导航栏 --- */
+            nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 15%;
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(12px);
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+            }
+            .logo {
+                font-size: 24px;
+                font-weight: 800;
+                color: #2c3e50;
+                letter-spacing: -1px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .logo span {
+                color: #9f7aea;
+            }
+            .ai-tag {
+                background: linear-gradient(135deg, #9f7aea 0%, #ed64a6 100%);
+                color: white;
+                font-size: 10px;
+                padding: 3px 10px;
+                border-radius: 4px;
+                vertical-align: middle;
+                font-weight: bold;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+            .nav-links a {
+                text-decoration: none;
+                color: #666;
+                margin-left: 30px;
+                font-size: 14px;
+                font-weight: 500;
+                transition: color 0.3s;
+            }
+            .nav-links a:hover {
+                color: #9f7aea;
+            }
+
+            /* --- 3. 首屏 Hero 区域 --- */
+            .hero-section {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px 15% 50px 15%;
+                background: linear-gradient(120deg, #eef2ff 0%, #f5f3ff 100%);
+                height: 400px;
+                min-height: 400px;
+                position: relative;
+                z-index: 1;
+                gap: 30px;
+                clip-path: polygon(0 0, 100% 0, 100% 88%, 0 100%);
+            }
+            .hero-text {
+                flex: 0 0 480px;
+                color: #2d3748;
+                z-index: 2;
+                margin-top: -20px;
+            }
+            .hero-text h1 {
+                font-size: 42px;
+                margin: 0 0 20px 0;
+                line-height: 1.1;
+                font-weight: 900;
+                color: #1a202c;
+            }
+            .hero-text .subtitle {
+                font-size: 15px;
+                line-height: 1.8;
+                margin-bottom: 20px;
+                font-weight: 400;
+                color: #4a5568;
+            }
+            .highlight {
+                background: rgba(255, 255, 255, 0.6);
+                padding: 2px 8px;
+                border-radius: 6px;
+                font-weight: bold;
+                color: #9f7aea;
+            }
+
+            .hero-visual {
+                flex: 1;
+                height: 100%;
+                position: relative;
+                z-index: 2;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-left: -50px;
+                mask-image: linear-gradient(
+                    to right,
+                    transparent 0%,
+                    black 15%,
+                    black 100%
+                );
+            }
+            #ai-brain-canvas {
+                width: 100%;
+                height: 100%;
+            }
+
+            /* --- 4. 宣言卡片 --- */
+            .manifesto-section {
+                position: relative;
+                margin-top: -70px;
+                margin-left: 15%;
+                margin-right: 15%;
+                z-index: 100;
+            }
+            .manifesto-box {
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(20px);
+                border-radius: 20px;
+                padding: 35px;
+                display: flex;
+                align-items: flex-start;
+                gap: 50px;
+                box-shadow: 0 20px 50px rgba(100, 100, 100, 0.05);
+                border: 1px solid rgba(255, 255, 255, 1);
+            }
+            .manifesto-text {
+                flex: 3;
+            }
+            .manifesto-visual {
+                flex: 2;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .manifesto-text h3 {
+                margin: 0 0 15px 0;
+                color: #2d3748;
+                font-size: 22px;
+                font-weight: 800;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .manifesto-text h3 span {
+                background: #f3e8ff;
+                color: #805ad5;
+                padding: 3px 8px;
+                border-radius: 4px;
+                font-weight: bold;
+                font-size: 11px;
+            }
+            .manifesto-content p {
+                font-size: 14px;
+                color: #4a5568;
+                line-height: 1.7;
+                margin-bottom: 12px;
+            }
+            .quote-box {
+                background: #fff5f5;
+                border-left: 4px solid #ed64a6;
+                color: #702459;
+                padding: 12px 18px;
+                margin-top: 15px;
+                font-size: 13px;
+                border-radius: 0 8px 8px 0;
+                font-style: italic;
+            }
+
+            /* --- ID Card Styles --- */
+            .id-card-mockup {
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 1);
+                box-shadow:
+                    0 10px 30px rgba(237, 100, 166, 0.1),
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+                border-radius: 20px;
+                padding: 25px;
+                width: 100%;
+                max-width: 240px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .id-card-mockup:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 40px rgba(237, 100, 166, 0.2);
+            }
+            .id-card-top-bar {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 4px;
+                background: linear-gradient(90deg, #ed64a6, #9f7aea);
+                transition: opacity 0.5s;
+            }
+            .id-card-mockup.registered {
+                background: rgba(255, 255, 255, 0.6);
+                border: 1px solid rgba(237, 100, 166, 0.2);
+                box-shadow:
+                    0 20px 50px rgba(237, 100, 166, 0.15),
+                    inset 0 0 30px rgba(255, 255, 255, 0.5);
+            }
+            .id-card-mockup.registered .id-card-top-bar {
+                opacity: 0;
+            }
+            .id-avatar-scan {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 15px;
+                border-radius: 50%;
+                background: #f7fafc;
+                border: 2px dashed #cbd5e0;
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .scan-beam {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    to bottom,
+                    transparent 40%,
+                    rgba(237, 100, 166, 0.2) 50%,
+                    transparent 60%
+                );
+                animation: avatar-scan 2s infinite linear;
+            }
+            .avatar-icon {
+                font-size: 24px;
+                color: #cbd5e0;
+                z-index: 2;
+                font-weight: bold;
+            }
+            .id-avatar-scan.active {
+                background: transparent;
+                border: none;
+                overflow: visible;
+            }
+            .id-avatar-scan.active .scan-beam {
+                display: none;
+            }
+            .avatar-nebula {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                background: conic-gradient(
+                    from 0deg,
+                    #ed64a6,
+                    #667eea,
+                    #4299e1,
+                    #9f7aea,
+                    #ed64a6
+                );
+                filter: blur(8px);
+                opacity: 0.8;
+                animation: nebula-spin 4s linear infinite;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            .avatar-core {
+                width: 80%;
+                height: 80%;
+                border-radius: 50%;
+                background: white;
+                position: absolute;
+                top: 10%;
+                left: 10%;
+                z-index: 2;
+                box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .avatar-symbol {
+                font-size: 24px;
+                font-weight: 900;
+                background: linear-gradient(135deg, #ed64a6, #667eea);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                z-index: 3;
+            }
+            .input-group {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 5px;
+            }
+            .tech-input {
+                background: transparent;
+                border: none;
+                border-bottom: 2px solid rgba(160, 174, 192, 0.3);
+                color: #2d3748;
+                font-family: "Consolas", "Monaco", monospace;
+                font-size: 16px;
+                font-weight: 700;
+                text-align: center;
+                width: 140px;
+                padding: 5px;
+                outline: none;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+            }
+            .tech-input:focus {
+                border-bottom-color: #ed64a6;
+                box-shadow: 0 4px 6px -2px rgba(237, 100, 166, 0.2);
+            }
+            .tech-input::placeholder {
+                color: #cbd5e0;
+                font-size: 12px;
+                letter-spacing: 1px;
+            }
+            .save-btn {
+                background: #ed64a6;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                width: 24px;
+                height: 24px;
+                margin-left: 8px;
+                cursor: pointer;
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transform: translateX(-10px);
+                transition: all 0.3s ease;
+            }
+            .tech-input:focus + .save-btn,
+            .tech-input:not(:placeholder-shown) + .save-btn {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            .save-btn:hover {
+                background: #d53f8c;
+                transform: scale(1.1);
+            }
+            .user-display-name {
+                font-family: "Montserrat", sans-serif;
+                font-size: 20px;
+                font-weight: 800;
+                margin-bottom: 6px;
+                letter-spacing: 0.5px;
+                background: linear-gradient(to bottom, #2d3748, #4a5568);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                text-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            }
+            .user-role-label {
+                display: inline-block;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                color: #ed64a6;
+                margin-bottom: 12px;
+                text-transform: uppercase;
+            }
+            .user-role-label::before,
+            .user-role-label::after {
+                content: "—";
+                color: #cbd5e0;
+                margin: 0 5px;
+                font-weight: 400;
+            }
+            .id-number-row {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 6px;
+                margin-bottom: 20px;
+            }
+            .id-label {
+                font-size: 10px;
+                color: #a0aec0;
+                font-weight: bold;
+                letter-spacing: 1px;
+            }
+            .id-val {
+                font-family: monospace;
+                font-size: 11px;
+                color: #718096;
+                background: #edf2f7;
+                padding: 2px 6px;
+                border-radius: 4px;
+            }
+            .tag-status {
+                font-size: 9px;
+                font-weight: bold;
+                padding: 1px 4px;
+                border-radius: 3px;
+                transition: all 0.3s;
+            }
+            .tag-status.pending {
+                color: #d69e2e;
+                background: rgba(250, 204, 21, 0.15);
+                border: 1px solid rgba(250, 204, 21, 0.3);
+                animation: pulse 2s infinite;
+            }
+            .tag-status.active {
+                color: #38a169;
+                background: rgba(72, 187, 120, 0.15);
+                border: 1px solid rgba(72, 187, 120, 0.3);
+                box-shadow: 0 0 8px rgba(72, 187, 120, 0.2);
+                animation: none;
+            }
+            .sync-bar-bg {
+                width: 100%;
+                height: 6px;
+                background: #eee;
+                border-radius: 3px;
+                overflow: hidden;
+                margin-bottom: 5px;
+            }
+            .sync-bar-fill {
+                width: 5%;
+                height: 100%;
+                background: #ed64a6;
+            }
+            .sync-text {
+                font-size: 10px;
+                color: #ed64a6;
+                font-weight: bold;
+                display: block;
+                text-align: right;
+            }
+
+            /* --- 5. 碎片空间 (Warm) --- */
+            .fragment-section-warm {
+                padding: 100px 15%;
+                position: relative;
+                margin-top: 60px;
+                overflow: hidden;
+                background-color: #fcfcfc;
+            }
+            .bg-texture-layer {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 0;
+                overflow: hidden;
+            }
+            .bg-texture-text {
+                position: absolute;
+                top: -60px;
+                right: -80px;
+                font-size: 180px;
+                font-weight: 900;
+                line-height: 0.85;
+                color: #f0e6e6;
+                opacity: 0.8;
+                mix-blend-mode: multiply;
+                user-select: none;
+                font-family: Arial, Helvetica, sans-serif;
+                letter-spacing: -10px;
+            }
+            .fragment-content-wrapper {
+                position: relative;
+                z-index: 10;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 60px;
+            }
+            .fragment-text-area {
+                flex: 1;
+                max-width: 550px;
+            }
+            .system-log-header {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                border-bottom: 2px solid #ed64a6;
+                padding-bottom: 8px;
+                margin-bottom: 20px;
+            }
+            .sys-label {
+                font-family: monospace;
+                font-size: 12px;
+                color: #d53f8c;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                font-weight: 700;
+            }
+            .sys-dot {
+                width: 8px;
+                height: 8px;
+                background-color: #ed64a6;
+                border-radius: 50%;
+                box-shadow: 0 0 0 3px rgba(237, 100, 166, 0.2);
+            }
+            .fragment-text-area h2 {
+                font-size: 42px;
+                font-weight: 900;
+                color: #2d3748;
+                margin: 0 0 5px 0;
+                letter-spacing: -1px;
+            }
+            .fragment-text-area .sub-h2 {
+                display: block;
+                font-family: monospace;
+                font-size: 16px;
+                color: #a0aec0;
+                margin-bottom: 25px;
+            }
+            .fragment-text-area p {
+                color: #718096;
+                font-size: 15px;
+                line-height: 1.8;
+                border-left: 3px solid #fbd38d;
+                padding-left: 20px;
+                background: linear-gradient(to right, #fffaf0, transparent);
+                padding-top: 10px;
+                padding-bottom: 10px;
+                margin-bottom: 35px;
+            }
+            .btn-fragment-warm {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                padding: 14px 32px;
+                background: linear-gradient(135deg, #ed64a6 0%, #9f7aea 100%);
+                color: white;
+                text-decoration: none;
+                font-weight: bold;
+                border-radius: 50px;
+                box-shadow: 0 10px 20px rgba(237, 100, 166, 0.3);
+                transition: all 0.3s ease;
+                font-family: inherit;
+            }
+            .btn-fragment-warm:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 15px 30px rgba(237, 100, 166, 0.4);
+            }
+            .fragment-recent {
+                margin-top: 30px;
+            }
+            .fragment-recent h4 {
+                color: #a0aec0;
+                font-size: 12px;
+                letter-spacing: 1px;
+                margin-bottom: 15px;
+                text-transform: uppercase;
+            }
+            .fragment-recent-item {
+                color: #4a5568;
+                border-bottom: 1px dashed #e2e8f0;
+                padding: 10px 0;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+            }
+            .fragment-recent-item .fr-type {
+                color: #ed64a6;
+                font-weight: 600;
+            }
+            .glass-panel-container {
+                flex-shrink: 0;
+                width: 380px;
+                position: relative;
+            }
+            .glass-window {
+                background: rgba(255, 255, 255, 0.6);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.8);
+                border-radius: 16px;
+                padding: 24px;
+                font-family: "Consolas", "Monaco", monospace;
+                box-shadow:
+                    0 20px 40px rgba(237, 100, 166, 0.05),
+                    0 1px 3px rgba(0, 0, 0, 0.05);
+                position: relative;
+                overflow: hidden;
+            }
+            .glass-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 25px;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                padding-bottom: 10px;
+            }
+            .glass-title {
+                font-size: 10px;
+                color: #a0aec0;
+                letter-spacing: 1px;
+            }
+            .glass-dots {
+                display: flex;
+                gap: 6px;
+            }
+            .g-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #e2e8f0;
+            }
+            .g-dot.active {
+                background: #ed64a6;
+                box-shadow: 0 0 8px #ed64a6;
+            }
+            .glass-body {
+                font-size: 12px;
+                line-height: 1.8;
+            }
+            .g-line {
+                display: block;
+                margin-bottom: 8px;
+            }
+            .c-meta {
+                color: #a0aec0;
+            }
+            .c-text {
+                color: #4a5568;
+                font-weight: 500;
+            }
+            .c-highlight {
+                color: #d53f8c;
+                background: rgba(237, 100, 166, 0.1);
+                padding: 0 4px;
+                border-radius: 2px;
+            }
+            .c-success {
+                color: #38a169;
+            }
+            .glass-progress {
+                width: 100%;
+                height: 6px;
+                background: #edf2f7;
+                border-radius: 3px;
+                margin: 20px 0;
+                overflow: hidden;
+            }
+            .glass-progress-bar {
+                width: 45%;
+                height: 100%;
+                background: linear-gradient(90deg, #f687b3, #9f7aea);
+                border-radius: 3px;
+                animation: progress-warm 3s ease-in-out infinite;
+            }
+            .shimmer-overlay {
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 50%;
+                height: 100%;
+                background: linear-gradient(
+                    to right,
+                    transparent,
+                    rgba(255, 255, 255, 0.8),
+                    transparent
+                );
+                transform: skewX(-20deg);
+                animation: shimmer 4s infinite;
+                pointer-events: none;
+            }
+            .soft-glow-deco {
+                position: absolute;
+                bottom: -40px;
+                right: -40px;
+                width: 150px;
+                height: 150px;
+                background: radial-gradient(
+                    circle,
+                    rgba(237, 100, 166, 0.2) 0%,
+                    transparent 70%
+                );
+                z-index: -1;
+            }
+
+            /* =========================================
+               6. 沙盒推演区 - Mystery Dark
+               ========================================= */
+            .sandbox-section-mystery {
+                padding: 100px 15%;
+                position: relative;
+                background: linear-gradient(180deg, #1e1b4b 0%, #020617 100%);
+                color: #e2e8f0;
+                overflow: hidden;
+            }
+            .bg-texture-text-sim-dark {
+                position: absolute;
+                top: 20px;
+                left: -50px;
+                font-size: 150px;
+                font-weight: 900;
+                line-height: 0.85;
+                color: #ffffff;
+                opacity: 0.03;
+                user-select: none;
+                font-family: Arial, Helvetica, sans-serif;
+                letter-spacing: -5px;
+                pointer-events: none;
+            }
+            .sandbox-content {
+                position: relative;
+                z-index: 2;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 60px;
+            }
+            .system-log-header-neon {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                border-bottom: 2px solid #22d3ee;
+                padding-bottom: 8px;
+                margin-bottom: 20px;
+            }
+            .sys-label-neon {
+                font-family: monospace;
+                font-size: 12px;
+                color: #67e8f9;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                font-weight: 700;
+                text-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+            }
+            .sys-dot-neon {
+                width: 8px;
+                height: 8px;
+                background-color: #22d3ee;
+                border-radius: 50%;
+                box-shadow: 0 0 8px #22d3ee;
+                animation: pulse 2s infinite;
+            }
+            .sandbox-text h2 {
+                font-size: 42px;
+                font-weight: 900;
+                color: #ffffff;
+                margin: 0 0 10px 0;
+            }
+            .sandbox-text p {
+                color: #94a3b8;
+                font-size: 16px;
+                line-height: 1.7;
+                max-width: 500px;
+                margin-bottom: 30px;
+                border-left: 3px solid #38bdf8;
+                padding-left: 20px;
+            }
+            .sandbox-grid-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image:
+                    linear-gradient(
+                        rgba(255, 255, 255, 0.05) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(255, 255, 255, 0.05) 1px,
+                        transparent 1px
+                    );
+                background-size: 40px 40px;
+                pointer-events: none;
+            }
+            .open-note {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: rgba(34, 211, 238, 0.1);
+                color: #67e8f9;
+                padding: 6px 16px;
+                border-radius: 30px;
+                font-size: 12px;
+                border: 1px solid rgba(34, 211, 238, 0.3);
+                margin-bottom: 15px;
+            }
+            .dot-live {
+                width: 8px;
+                height: 8px;
+                background: #4ade80;
+                border-radius: 50%;
+                box-shadow: 0 0 5px #4ade80;
+                animation: pulse 1s infinite;
+            }
+            .btn-sandbox-neon {
+                padding: 15px 40px;
+                background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+                border: none;
+                color: white;
+                font-weight: bold;
+                border-radius: 50px;
+                cursor: pointer;
+                box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+                font-size: 16px;
+                transition: all 0.3s;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .btn-sandbox-neon:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 35px rgba(6, 182, 212, 0.6);
+            }
+            .sandbox-visual {
+                width: 320px;
+                height: 220px;
+                background: rgba(15, 23, 42, 0.8);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+                border-radius: 16px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+            }
+            .wave-line {
+                width: 80%;
+                height: 2px;
+                background: #22d3ee;
+                margin: 5px 0;
+                border-radius: 2px;
+                animation: width-pulse 2s infinite ease-in-out;
+            }
+            .w1 {
+                animation-delay: 0s;
+                width: 60%;
+            }
+            .w2 {
+                animation-delay: 0.2s;
+                width: 80%;
+                opacity: 0.8;
+            }
+            .w3 {
+                animation-delay: 0.4s;
+                width: 40%;
+                opacity: 0.6;
+            }
+
+            /* History Card Dark Mode */
+            .home-history {
+                margin-top: 30px;
+            }
+            .home-history h4 {
+                font-size: 13px;
+                color: #64748b;
+                margin-bottom: 12px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            .home-history-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .home-history-card {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                padding: 12px 16px;
+                cursor: pointer;
+                transition: all 0.25s ease;
+                text-decoration: none;
+            }
+            .home-history-card:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-color: #38bdf8;
+                transform: translateX(4px);
+            }
+            .home-history-title {
+                flex: 1;
+                font-size: 14px;
+                color: #e2e8f0;
+                font-weight: 600;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .home-history-meta {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+            .home-history-mode {
+                font-size: 10px;
+                padding: 2px 8px;
+                border-radius: 20px;
+                font-weight: bold;
+            }
+            .home-history-mode.mode-happy {
+                background: rgba(250, 204, 21, 0.15);
+                color: #facc15;
+                border: 1px solid rgba(250, 204, 21, 0.3);
+            }
+            .home-history-mode.mode-hard {
+                background: rgba(244, 63, 94, 0.15);
+                color: #f43f5e;
+                border: 1px solid rgba(244, 63, 94, 0.3);
+            }
+            .home-history-time {
+                font-size: 11px;
+                color: #94a3b8;
+                font-family: monospace;
+            }
+
+            /* Animations */
+            @keyframes shimmer {
+                0% {
+                    left: -100%;
+                }
+                20% {
+                    left: 200%;
+                }
+                100% {
+                    left: 200%;
+                }
+            }
+            @keyframes progress-warm {
+                0% {
+                    width: 45%;
+                }
+                50% {
+                    width: 60%;
+                }
+                100% {
+                    width: 45%;
+                }
+            }
+            @keyframes float {
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(-20px);
+                }
+            }
+            @keyframes pulse {
+                0%,
+                100% {
+                    transform: scale(1);
+                    opacity: 0.9;
+                }
+                50% {
+                    transform: scale(1.05);
+                    opacity: 1;
+                }
+            }
+            @keyframes pulse-red {
+                0% {
+                    opacity: 0.6;
+                }
+                50% {
+                    opacity: 1;
+                }
+                100% {
+                    opacity: 0.6;
+                }
+            }
+            @keyframes width-pulse {
+                0%,
+                100% {
+                    width: 40%;
+                }
+                50% {
+                    width: 80%;
+                }
+            }
+            @keyframes avatar-scan {
+                0% {
+                    transform: translateY(-100%);
+                }
+                100% {
+                    transform: translateY(100%);
+                }
+            }
+            @keyframes nebula-spin {
+                0% {
+                    transform: rotate(0deg) scale(1);
+                }
+                50% {
+                    transform: rotate(180deg) scale(1.1);
+                }
+                100% {
+                    transform: rotate(360deg) scale(1);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .hero-section {
+                    flex-direction: column;
+                    text-align: center;
+                    padding-top: 40px;
+                    padding-bottom: 80px;
+                    height: auto;
+                    min-height: auto;
+                }
+                .hero-text {
+                    padding-right: 0;
+                    margin-bottom: 20px;
+                    flex: auto;
+                    max-width: 100%;
+                }
+                .hero-visual {
+                    height: 300px;
+                    margin-left: 0;
+                }
+                .manifesto-section {
+                    margin-top: 20px;
+                }
+                .manifesto-box {
+                    flex-direction: column;
+                    gap: 30px;
+                    padding: 25px;
+                }
+                .manifesto-visual {
+                    width: 100%;
+                }
+                .fragment-content-wrapper {
+                    flex-direction: column;
+                    gap: 40px;
+                }
+                .bg-texture-text {
+                    font-size: 80px;
+                    right: -20px;
+                    top: 0;
+                }
+                .glass-panel-container {
+                    width: 100%;
+                }
+                .sandbox-content {
+                    flex-direction: column;
+                    text-align: center;
+                    gap: 30px;
+                }
+                .bg-texture-text-sim-dark {
+                    font-size: 60px;
+                    left: 0;
+                    top: 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <nav>
+            <div class="logo">🔮 Inner<span>Space</span></div>
+            <div class="ai-tag">Digital Soul Lab</div>
+            <div class="nav-links">
+                <a href="#" onclick="DataManager.export();return false;"
+                    >导出数据</a
+                >
+                <a href="#" onclick="DataManager.import();return false;"
+                    >导入数据</a
+                >
+                <a
+                    href="#"
+                    onclick="DataManager.clear();return false;"
+                    style="color: #e53e3e"
+                    >清除数据</a
+                >
+            </div>
+        </nav>
+
+        <div class="hero-section">
+            <div class="hero-text">
+                <h1>构建你的<br />数字化人格副本</h1>
+                <p class="subtitle">
+                    InnerSpace 是你灵魂的数字化蓝图。<br />
+                    在这里，每一块记忆碎片都是基石，每一行代码<span
+                        class="highlight"
+                        >都在构建未来</span
+                    >。<br />
+                </p>
+            </div>
+
+            <div class="hero-visual">
+                <canvas id="ai-brain-canvas"></canvas>
+            </div>
+        </div>
+
+        <div class="manifesto-section">
+            <div class="manifesto-box">
+                <div class="manifesto-text">
+                    <h3>什么是人格副本？ <span>CONCEPT</span></h3>
+                    <div class="manifesto-content">
+                        <p>
+                            每个人都是一个复杂的宇宙，现实中的我们往往只展露了冰山一角。<br />
+                            InnerSpace 致力于通过 AI
+                            视角，帮你捕捉那些<strong>连你自己都未曾察觉的潜意识碎片</strong>。
+                        </p>
+                        <p>
+                            这是一场<strong>“关于自我认知的拼图游戏”</strong>。<br />
+                            你投喂的每一个选择，都会化作一行行代码，在数字世界里<strong>构建出一个高维度的“你”</strong>。<br />
+                            它绝对理智，却又无比深情。
+                        </p>
+                        <div class="quote-box">
+                            “这不是一次测试，而是一次觉醒。看着屏幕对面的数字分身逐渐清晰，你会第一次真正‘看见’自己。”
+                        </div>
+                    </div>
+                </div>
+
+                <div class="manifesto-visual">
+                    <div class="id-card-mockup" id="user-id-card">
+                        <div class="id-card-top-bar"></div>
+                        <div class="id-avatar-scan">
+                            <div class="scan-beam"></div>
+                            <div class="avatar-icon" id="avatar-display">?</div>
+                        </div>
+                        <div class="id-info">
+                            <div class="input-group" id="input-area">
+                                <input
+                                    type="text"
+                                    id="username-input"
+                                    class="tech-input"
+                                    placeholder="ENTER_CODENAME..."
+                                    maxlength="12"
+                                    autocomplete="off"
+                                />
+                                <button
+                                    class="save-btn"
+                                    onclick="saveUsername()"
+                                >
+                                    ⏎
+                                </button>
+                            </div>
+                            <div
+                                class="display-group"
+                                id="display-area"
+                                style="display: none"
+                            >
+                                <div
+                                    class="user-display-name"
+                                    id="user-name-display"
+                                ></div>
+                                <div class="user-role-label">ARCHITECT</div>
+                            </div>
+                            <div class="id-number-row">
+                                <span class="id-label">ID:</span>
+                                <span class="id-val" id="user-id-val"
+                                    >PENDING</span
+                                >
+                                <span
+                                    class="tag-status pending"
+                                    id="user-status-tag"
+                                    >UNREGISTERED</span
+                                >
+                            </div>
+                        </div>
+                        <div class="sync-bar-bg">
+                            <div class="sync-bar-fill"></div>
+                        </div>
+                        <div
+                            style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                            "
+                        >
+                            <span class="sync-text" style="color: #a0aec0"
+                                >Sync Rate</span
+                            >
+                            <span class="sync-text sync-val-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fragment-section-warm">
+            <div class="bg-texture-layer">
+                <div class="bg-texture-text">FRAG<br />MENTS</div>
+            </div>
+            <div class="fragment-content-wrapper">
+                <div class="fragment-text-area">
+                    <div class="system-log-header">
+                        <div class="sys-dot"></div>
+                        <span class="sys-label">System_Log // No.01</span>
+                    </div>
+                    <h2>我是谁？</h2>
+                    <span class="sub-h2">(Who am I)</span>
+                    <p>
+                        每个人都是一面被打碎的镜子。<br />
+                        收集散落在记忆、情绪和潜意识中的碎片，<br />
+                        拼凑出完整的自己——这是构建人格副本的第一步。
+                    </p>
+                    <a class="btn-fragment-warm" href="fragments.html">
+                        <span>🧬 进入碎片空间</span>
+                    </a>
+                    <div class="fragment-recent" id="fragment-recent"></div>
+                </div>
+                <div class="glass-panel-container">
+                    <div class="glass-window">
+                        <div class="shimmer-overlay"></div>
+                        <div class="glass-header">
+                            <span class="glass-title"
+                                >MEMORY_ANALYSIS_VIEW</span
+                            >
+                            <div class="glass-dots">
+                                <div class="g-dot"></div>
+                                <div class="g-dot"></div>
+                                <div class="g-dot active"></div>
+                            </div>
+                        </div>
+                        <div class="glass-body">
+                            <span class="g-line c-meta">> System Ready.</span>
+                            <span class="g-line c-text"
+                                >正在尝试连接潜意识...
+                                <span class="c-success">已连接</span></span
+                            >
+                            <div class="glass-progress">
+                                <div class="glass-progress-bar"></div>
+                            </div>
+                            <span class="g-line c-text"
+                                >检测到
+                                <span class="c-highlight">3</span>
+                                个关键记忆碎片</span
+                            >
+                            <span class="g-line c-meta">
+                                [01] 依恋模式分析... <br />
+                                [02] 潜在恐惧投射... <br />
+                                [03] 核心价值观提取...
+                            </span>
+                            <br />
+                            <span
+                                class="g-line c-highlight"
+                                style="font-size: 10px"
+                                >Waiting for user interaction...</span
+                            >
+                        </div>
+                    </div>
+                    <div class="soft-glow-deco"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sandbox-section-mystery">
+            <div class="sandbox-grid-overlay"></div>
+            <div class="bg-texture-text-sim-dark">SIMU<br />LATION</div>
+            <div class="sandbox-content">
+                <div class="sandbox-text">
+                    <div class="system-log-header-neon">
+                        <div class="sys-dot-neon"></div>
+                        <span class="sys-label-neon">System_Log // No.02</span>
+                    </div>
+                    <div class="open-note">
+                        <div class="dot-live"></div>
+                        系统实时就绪
+                    </div>
+                    <h2>我可能会经历什么？<br />(What will I experience)</h2>
+                    <p>
+                        生命是一场不停歇的流动。无论你的“人格副本”是否完整，推演系统都时刻待命。<br />
+                        <strong>注意：</strong
+                        >数据越少，推演结果越混沌；数据越完整，未来的轨迹越清晰。<br />
+                        你想看看“现在的你”会走向哪里吗？
+                    </p>
+                    <button
+                        class="btn-sandbox-neon"
+                        onclick="window.location.href='sandbox.html'"
+                    >
+                        🚀 基于当前数据启动推演
+                    </button>
+                    <div id="sandbox-history"></div>
+                </div>
+                <div class="sandbox-visual">
+                    <div class="wave-line w1"></div>
+                    <div class="wave-line w2"></div>
+                    <div class="wave-line w3"></div>
+                    <p
+                        style="
+                            font-family: monospace;
+                            font-size: 10px;
+                            color: #a5b4fc;
+                            margin-top: 20px;
+                        "
+                    >
+                        SIMULATING REALITY...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // --- CORE: Canvas Brain Network & Infinite Flowing Code ---
+            (function () {
+                const canvas = document.getElementById("ai-brain-canvas");
+                if (!canvas) return;
+
+                const ctx = canvas.getContext("2d");
+                let w, h;
+
+                let time = 0;
+                const chars = "0101010101ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                let brainNodes = [];
+                let flowParticles = [];
+                let extensionNodes = [];
+
+                function resize() {
+                    w = canvas.offsetWidth;
+                    h = canvas.offsetHeight;
+                    canvas.width = w;
+                    canvas.height = h;
+                    initBrain();
+                }
+                window.addEventListener("resize", resize);
+
+                function getFaceProfilePath(scale, offsetX, offsetY) {
+                    const p = new Path2D();
+                    p.moveTo(offsetX + 120 * scale, offsetY + 50 * scale);
+                    p.bezierCurveTo(
+                        offsetX + 180 * scale,
+                        offsetY + 50 * scale,
+                        offsetX + 210 * scale,
+                        offsetY + 90 * scale,
+                        offsetX + 220 * scale,
+                        offsetY + 150 * scale,
+                    );
+                    p.bezierCurveTo(
+                        offsetX + 225 * scale,
+                        offsetY + 175 * scale,
+                        offsetX + 230 * scale,
+                        offsetY + 200 * scale,
+                        offsetX + 240 * scale,
+                        offsetY + 220 * scale,
+                    );
+                    p.bezierCurveTo(
+                        offsetX + 270 * scale,
+                        offsetY + 235 * scale,
+                        offsetX + 265 * scale,
+                        offsetY + 260 * scale,
+                        offsetX + 240 * scale,
+                        offsetY + 265 * scale,
+                    );
+                    p.bezierCurveTo(
+                        offsetX + 245 * scale,
+                        offsetY + 275 * scale,
+                        offsetX + 250 * scale,
+                        offsetY + 285 * scale,
+                        offsetX + 235 * scale,
+                        offsetY + 290 * scale,
+                    );
+                    p.bezierCurveTo(
+                        offsetX + 235 * scale,
+                        offsetY + 295 * scale,
+                        offsetX + 240 * scale,
+                        offsetY + 305 * scale,
+                        offsetX + 230 * scale,
+                        offsetY + 310 * scale,
+                    );
+                    p.bezierCurveTo(
+                        offsetX + 235 * scale,
+                        offsetY + 330 * scale,
+                        offsetX + 200 * scale,
+                        offsetY + 355 * scale,
+                        offsetX + 150 * scale,
+                        offsetY + 360 * scale,
+                    );
+                    // Extended Tail
+                    p.bezierCurveTo(
+                        offsetX + 100 * scale,
+                        offsetY + 370 * scale,
+                        offsetX + 20 * scale,
+                        offsetY + 380 * scale,
+                        offsetX - 50 * scale,
+                        offsetY + 300 * scale,
+                    );
+                    return p;
+                }
+
+                function getClosedFacePath(scale, offsetX, offsetY) {
+                    const p = getFaceProfilePath(scale, offsetX, offsetY);
+                    p.lineTo(offsetX - 50 * scale, offsetY + 50 * scale);
+                    p.closePath();
+                    return p;
+                }
+
+                class BrainNode {
+                    constructor(x, y, isBig = false) {
+                        this.x = x;
+                        this.y = y;
+                        this.baseX = x;
+                        this.baseY = y;
+                        this.phase = Math.random() * Math.PI * 2;
+                        this.size = isBig
+                            ? Math.random() * 2 + 2
+                            : Math.random() * 1.5 + 0.5;
+                    }
+                    update() {
+                        this.phase += 0.02;
+                        this.x = this.baseX + Math.sin(this.phase) * 2;
+                        this.y = this.baseY + Math.cos(this.phase) * 2;
+                    }
+                    draw() {
+                        let grad = ctx.createRadialGradient(
+                            this.x,
+                            this.y,
+                            0,
+                            this.x,
+                            this.y,
+                            this.size * 3,
+                        );
+                        grad.addColorStop(0, "rgba(255, 255, 255, 1)");
+                        grad.addColorStop(0.3, "rgba(160, 180, 255, 0.8)");
+                        grad.addColorStop(1, "rgba(160, 180, 255, 0)");
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+                        ctx.fillStyle = grad;
+                        ctx.fill();
+                    }
+                }
+
+                class ExtensionNode {
+                    constructor(scale, offsetX, offsetY) {
+                        this.scale = scale;
+                        this.offsetX = offsetX;
+                        this.offsetY = offsetY;
+                        this.reset();
+                    }
+                    reset() {
+                        let startX = this.offsetX + 100 * this.scale;
+                        let spread = Math.random() * 400 * this.scale;
+                        this.x = startX - spread;
+                        this.y =
+                            this.offsetY +
+                            50 * this.scale +
+                            Math.random() * 300 * this.scale;
+                        let proximity = 1 - spread / (400 * this.scale);
+                        this.size = Math.random() * 1.5 + 0.5 + proximity * 2;
+                        this.baseAlpha = Math.max(0.2, proximity * 0.8);
+                        this.alpha = this.baseAlpha;
+                        this.blinkSpeed = Math.random() * 0.03 + 0.01;
+                        this.phase = Math.random() * Math.PI * 2;
+                    }
+                    update() {
+                        this.phase += this.blinkSpeed;
+                        this.alpha =
+                            this.baseAlpha * (0.6 + 0.4 * Math.sin(this.phase));
+                    }
+                    draw() {
+                        if (this.alpha < 0.05) return;
+                        let grad = ctx.createRadialGradient(
+                            this.x,
+                            this.y,
+                            0,
+                            this.x,
+                            this.y,
+                            this.size * 2,
+                        );
+                        grad.addColorStop(
+                            0,
+                            `rgba(255, 255, 255, ${this.alpha})`,
+                        );
+                        grad.addColorStop(1, `rgba(102, 126, 234, 0)`);
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
+                        ctx.fillStyle = grad;
+                        ctx.fill();
+                    }
+                }
+
+                class FlowParticle {
+                    constructor(scale, offsetX, offsetY) {
+                        this.scale = scale;
+                        this.offsetX = offsetX;
+                        this.offsetY = offsetY;
+                        this.reset(true);
+                    }
+                    reset(randomX = false) {
+                        this.x = randomX ? Math.random() * w : -50;
+                        this.y = Math.random() * h;
+                        this.speed = Math.random() * 1.5 + 0.5;
+                        this.char =
+                            chars[Math.floor(Math.random() * chars.length)];
+                        this.size = Math.random() * 10 + 8;
+                        this.opacityBase = Math.random() * 0.5 + 0.1;
+                    }
+                    update() {
+                        this.x += this.speed;
+                        if (this.x > w + 50) this.reset();
+                    }
+                    draw() {
+                        const relX = (this.x - this.offsetX) / this.scale;
+                        const relY = (this.y - this.offsetY) / this.scale;
+                        if (relY > 40 && relY < 360) {
+                            const inFace = ctx.isPointInPath(
+                                collisionPath,
+                                this.x,
+                                this.y,
+                            );
+                            const isTrailing =
+                                relX < 150 && relX > -300 && !inFace;
+                            let finalOpacity = 0;
+                            let color = "#a0aec0";
+                            if (inFace) {
+                                const distFromFront = 260 - relX;
+                                color = "#667eea";
+                                if (distFromFront < 40) color = "#22d3ee";
+                                finalOpacity = 0.8;
+                            } else if (isTrailing) {
+                                let dist = (relX + 250) / 400;
+                                finalOpacity = Math.max(0, dist * 0.6);
+                                color = "#667eea";
+                            }
+                            if (relX < 100) finalOpacity *= relX / 100;
+                            if (finalOpacity > 0.05) {
+                                ctx.fillStyle = color;
+                                ctx.globalAlpha =
+                                    finalOpacity * this.opacityBase;
+                                ctx.font = `bold ${this.size}px monospace`;
+                                ctx.fillText(this.char, this.x, this.y);
+                                ctx.globalAlpha = 1.0;
+                            }
+                        }
+                    }
+                }
+
+                let collisionPath;
+
+                function initBrain() {
+                    const scale = Math.min(w, h) / 380;
+                    const offsetX = w / 2 - 120 * scale;
+                    const offsetY = h / 2 - 200 * scale;
+                    collisionPath = getClosedFacePath(scale, offsetX, offsetY);
+                    brainNodes = [];
+                    let attempts = 0;
+                    while (brainNodes.length < 45 && attempts < 1000) {
+                        attempts++;
+                        let bx =
+                            offsetX + 20 * scale + Math.random() * 180 * scale;
+                        let by =
+                            offsetY + 50 * scale + Math.random() * 320 * scale;
+                        if (ctx.isPointInPath(collisionPath, bx, by)) {
+                            let tooClose = false;
+                            for (let n of brainNodes) {
+                                let d = Math.hypot(n.x - bx, n.y - by);
+                                if (d < 40 * scale) {
+                                    tooClose = true;
+                                    break;
+                                }
+                            }
+                            if (!tooClose) {
+                                let isBig = Math.random() > 0.7;
+                                brainNodes.push(new BrainNode(bx, by, isBig));
+                            }
+                        }
+                    }
+                    extensionNodes = [];
+                    for (let i = 0; i < 80; i++)
+                        extensionNodes.push(
+                            new ExtensionNode(scale, offsetX, offsetY),
+                        );
+                    flowParticles = [];
+                    for (let i = 0; i < 800; i++)
+                        flowParticles.push(
+                            new FlowParticle(scale, offsetX, offsetY),
+                        );
+                }
+
+                function animate() {
+                    ctx.clearRect(0, 0, w, h);
+                    time++;
+                    const scale = Math.min(w, h) / 380;
+                    const offsetX = w / 2 - 120 * scale;
+                    const offsetY = h / 2 - 200 * scale;
+                    flowParticles.forEach((p) => {
+                        p.update();
+                        p.draw();
+                    });
+                    ctx.save();
+                    brainNodes.forEach((n) => n.draw());
+                    extensionNodes.forEach((en) => {
+                        en.update();
+                        en.draw();
+                    });
+                    ctx.restore();
+
+                    const profilePath = getFaceProfilePath(
+                        scale,
+                        offsetX,
+                        offsetY,
+                    );
+
+                    // 1. Draw Base Line: Vertical Gradient Alpha to create "fading tips"
+                    ctx.save();
+                    // Define a vertical gradient that is transparent at top/bottom and opaque in middle
+                    let baseGrad = ctx.createLinearGradient(
+                        0,
+                        offsetY + 50 * scale,
+                        0,
+                        offsetY + 350 * scale,
+                    );
+                    baseGrad.addColorStop(0.0, "rgba(102, 126, 234, 0)"); // Top Tip (Invisible)
+                    baseGrad.addColorStop(0.2, "rgba(102, 126, 234, 0.3)"); // Visible start
+                    baseGrad.addColorStop(0.8, "rgba(102, 126, 234, 0.3)"); // Visible end
+                    baseGrad.addColorStop(1.0, "rgba(102, 126, 234, 0)"); // Bottom Tip (Invisible)
+
+                    ctx.strokeStyle = baseGrad;
+                    ctx.lineWidth = 1.5;
+                    ctx.lineCap = "round";
+                    ctx.stroke(profilePath);
+                    ctx.restore();
+
+                    // 2. Draw Moving Light Pulse: Using 'source-atop' to clip to the base line AND inherit its alpha fade
+                    ctx.save();
+
+                    // A. Create the path again, but invisible, just for clipping if needed
+                    // Actually, we can just draw a rectangle over the existing stroke using source-atop
+                    // Because source-atop draws new pixels ONLY where existing pixels are opaque-ish.
+
+                    ctx.globalCompositeOperation = "source-atop";
+
+                    // Horizontal Gradient for Movement
+                    let waveLength = 400 * scale;
+                    let speed = (time * 3) % waveLength;
+                    let startX = offsetX + 50 * scale;
+
+                    let pulse = ctx.createLinearGradient(
+                        startX + speed - waveLength,
+                        0,
+                        startX + speed + waveLength,
+                        0,
+                    );
+                    pulse.addColorStop(0, "rgba(102, 126, 234, 0)");
+                    pulse.addColorStop(0.2, "rgba(34, 211, 238, 1)"); // Bright Head 1
+                    pulse.addColorStop(0.4, "rgba(102, 126, 234, 0)");
+                    pulse.addColorStop(0.5, "rgba(102, 126, 234, 0)");
+                    pulse.addColorStop(0.7, "rgba(34, 211, 238, 1)"); // Bright Head 2
+                    pulse.addColorStop(0.9, "rgba(102, 126, 234, 0)");
+
+                    ctx.fillStyle = pulse;
+                    // We fill the whole canvas, but source-atop restricts it to the lines we just drew in step 1
+                    // Since step 1 lines fade out at the tips, this pulse will ALSO fade out at the tips.
+                    ctx.fillRect(0, 0, w, h);
+
+                    // Add Glow (requires redrawing source-atop context, or simpler: just stick to the fill)
+                    // The fillRect already colors the line.
+
+                    ctx.restore();
+
+                    requestAnimationFrame(animate);
+                }
+
+                resize();
+                animate();
+            })();
+
+            // --- 1. User Name Input Logic (Same) ---
+            (function () {
+                const inputArea = document.getElementById("input-area");
+                const displayArea = document.getElementById("display-area");
+                const nameInput = document.getElementById("username-input");
+                const nameDisplay =
+                    document.getElementById("user-name-display");
+                const statusTag = document.getElementById("user-status-tag");
+                const idVal = document.getElementById("user-id-val");
+                const avatarContainer =
+                    document.querySelector(".id-avatar-scan");
+                const card = document.getElementById("user-id-card");
+                const savedName = localStorage.getItem("innerspace_username");
+                const savedID = localStorage.getItem("innerspace_userid");
+                if (savedName) showRegisteredState(savedName, savedID, false);
+                if (nameInput)
+                    nameInput.addEventListener("keypress", function (e) {
+                        if (e.key === "Enter") saveUsername();
+                    });
+                window.saveUsername = function () {
+                    const name = nameInput.value.trim();
+                    if (!name) return;
+                    const randomID =
+                        "#USR-" + Math.floor(1000 + Math.random() * 9000);
+                    localStorage.setItem("innerspace_username", name);
+                    localStorage.setItem("innerspace_userid", randomID);
+                    showRegisteredState(name, randomID, true);
+                };
+                function showRegisteredState(name, id, animate) {
+                    if (!inputArea) return;
+                    inputArea.style.display = "none";
+                    displayArea.style.display = "block";
+                    nameDisplay.textContent = name;
+                    idVal.textContent = id || "#ERR";
+                    statusTag.textContent = "ACTIVE";
+                    statusTag.className = "tag-status active";
+                    if (card) card.classList.add("registered");
+                    if (avatarContainer) {
+                        avatarContainer.innerHTML = "";
+                        avatarContainer.classList.add("active");
+                        const nebula = document.createElement("div");
+                        nebula.className = "avatar-nebula";
+                        const core = document.createElement("div");
+                        core.className = "avatar-core";
+                        const symbol = document.createElement("span");
+                        symbol.className = "avatar-symbol";
+                        symbol.textContent = name.charAt(0).toUpperCase();
+                        core.appendChild(symbol);
+                        avatarContainer.appendChild(nebula);
+                        avatarContainer.appendChild(core);
+                    }
+                    if (animate) runDecodeEffect(nameDisplay, name);
+                }
+                function runDecodeEffect(element, finalText) {
+                    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_#@&%";
+                    let iterations = 0;
+                    element.innerText = finalText
+                        .split("")
+                        .map(
+                            () =>
+                                chars[Math.floor(Math.random() * chars.length)],
+                        )
+                        .join("");
+                    const interval = setInterval(() => {
+                        element.innerText = finalText
+                            .split("")
+                            .map((letter, index) => {
+                                if (index < iterations) return finalText[index];
+                                return chars[
+                                    Math.floor(Math.random() * chars.length)
+                                ];
+                            })
+                            .join("");
+                        if (iterations >= finalText.length)
+                            clearInterval(interval);
+                        iterations += 1 / 3;
+                    }, 50);
+                }
+            })();
+
+            // --- 2. Fragment Data & 3. Sandbox History (Same) ---
+            (function () {
+                try {
+                    var stored = localStorage.getItem("innerspace_results");
+                    if (!stored) return;
+                    var results = JSON.parse(stored);
+                    var modules = ["core", "emotion", "shadow"];
+                    var completedCount = 0;
+                    var MODULE_INFO = {
+                        core: { icon: "🧬", name: "人格基石" },
+                        emotion: { icon: "💞", name: "依恋模式" },
+                        shadow: { icon: "🌒", name: "潜意识阴影" },
+                    };
+                    var recentItems = [];
+                    modules.forEach(function (id) {
+                        if (!results[id]) return;
+                        completedCount++;
+                        var data = results[id].data;
+                        recentItems.push({
+                            icon: MODULE_INFO[id].icon,
+                            name: MODULE_INFO[id].name,
+                            typeName:
+                                data && data.typeName ? data.typeName : "",
+                        });
+                    });
+                    var syncPercent = Math.round(
+                        (completedCount / modules.length) * 100,
+                    );
+                    var syncFill = document.querySelector(".sync-bar-fill");
+                    var syncTexts = document.querySelectorAll(".sync-val-text");
+                    if (syncFill) syncFill.style.width = syncPercent + "%";
+                    if (syncTexts.length) {
+                        syncTexts.forEach(function (el) {
+                            el.textContent = syncPercent + "%";
+                        });
+                    }
+                    var recentEl = document.getElementById("fragment-recent");
+                    if (recentEl && recentItems.length > 0) {
+                        var html =
+                            '<h4>已收集的碎片</h4><div class="fragment-recent-list">';
+                        for (var i = 0; i < recentItems.length; i++) {
+                            var item = recentItems[i];
+                            html += '<div class="fragment-recent-item">';
+                            html +=
+                                '<span class="fr-icon">' +
+                                item.icon +
+                                "</span> ";
+                            html +=
+                                '<span class="fr-name">' +
+                                item.name +
+                                "</span>";
+                            if (item.typeName) {
+                                html +=
+                                    '<span class="fr-type"> 「' +
+                                    item.typeName +
+                                    "」</span>";
+                            }
+                            html += "</div>";
+                        }
+                        html += "</div>";
+                        recentEl.innerHTML = html;
+                    }
+                } catch (e) {}
+            })();
+            (function () {
+                try {
+                    var container = document.getElementById("sandbox-history");
+                    if (!container) return;
+                    var history = JSON.parse(
+                        localStorage.getItem("innerspace_sandbox_history") ||
+                            "[]",
+                    );
+                    if (!history.length) return;
+                    var show = history.slice(0, 3);
+                    var html =
+                        '<div class="home-history"><h4>最近推演记录</h4><div class="home-history-list">';
+                    for (var i = 0; i < show.length; i++) {
+                        var item = show[i];
+                        var date = new Date(item.timestamp);
+                        var timeStr =
+                            date.getMonth() +
+                            1 +
+                            "/" +
+                            date.getDate() +
+                            " " +
+                            String(date.getHours()).padStart(2, "0") +
+                            ":" +
+                            String(date.getMinutes()).padStart(2, "0");
+                        var modeClass =
+                            item.mode === "happy" ? "mode-happy" : "mode-hard";
+                        var modeLabel = item.mode === "happy" ? "幸福" : "困难";
+                        html +=
+                            '<a class="home-history-card" href="sandbox.html">';
+                        html +=
+                            '<span class="home-history-title">' +
+                            (item.title || "推演结局").replace(/</g, "&lt;") +
+                            "</span>";
+                        html += '<span class="home-history-meta">';
+                        html +=
+                            '<span class="home-history-mode ' +
+                            modeClass +
+                            '">' +
+                            modeLabel +
+                            "</span>";
+                        html +=
+                            '<span class="home-history-time">' +
+                            timeStr +
+                            "</span>";
+                        html += "</span></a>";
+                    }
+                    html += "</div></div>";
+                    container.innerHTML = html;
+                } catch (e) {}
+            })();
+        </script>
+        <script src="js/data-manager.js"></script>
+    </body>
+</html>

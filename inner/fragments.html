@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>InnerSpace - 碎片空间</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+                background: linear-gradient(160deg, #fdf2f8 0%, #f0f4ff 100%);
+                min-height: 100vh;
+                color: #333;
+                position: relative;
+                overflow-x: hidden;
+            }
+
+            /* Soft glow background decorations */
+            body::before,
+            body::after {
+                content: "";
+                position: fixed;
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 0;
+            }
+            body::before {
+                width: 500px;
+                height: 500px;
+                top: -100px;
+                right: -150px;
+                background: radial-gradient(
+                    circle,
+                    rgba(244, 163, 191, 0.15) 0%,
+                    transparent 70%
+                );
+            }
+            body::after {
+                width: 600px;
+                height: 600px;
+                bottom: -200px;
+                left: -200px;
+                background: radial-gradient(
+                    circle,
+                    rgba(147, 181, 225, 0.15) 0%,
+                    transparent 70%
+                );
+            }
+
+            /* Navigation */
+            .top-nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 8%;
+                background: rgba(255, 255, 255, 0.75);
+                backdrop-filter: blur(12px);
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+            }
+            .logo {
+                font-size: 22px;
+                font-weight: 800;
+                color: #2c3e50;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .logo span {
+                color: #c084b8;
+            }
+            .back-link {
+                color: #888;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+                transition: color 0.3s;
+            }
+            .back-link:hover {
+                color: #c084b8;
+            }
+
+            /* Container */
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 40px 20px 60px;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* Page Header */
+            .page-header {
+                text-align: center;
+                margin-bottom: 36px;
+            }
+            .page-header h1 {
+                font-size: 36px;
+                font-weight: 900;
+                margin-bottom: 8px;
+                background: linear-gradient(135deg, #c084b8, #93b5e1);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .page-header p {
+                color: #888;
+                font-size: 15px;
+            }
+
+            /* Intro Box */
+            .intro-box {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 30px;
+                margin-bottom: 40px;
+                border: 1px solid rgba(255, 255, 255, 0.9);
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+            }
+            .intro-icon {
+                font-size: 36px;
+                margin-bottom: 12px;
+                display: block;
+            }
+            .intro-box p {
+                font-size: 14px;
+                color: #666;
+                line-height: 1.8;
+                margin-bottom: 10px;
+            }
+            .intro-box p:last-child {
+                margin-bottom: 0;
+            }
+            .intro-box strong {
+                color: #c084b8;
+                font-weight: 700;
+            }
+            .intro-tip {
+                margin-top: 14px;
+                padding: 10px 16px;
+                background: rgba(192, 132, 184, 0.08);
+                border-radius: 10px;
+                font-size: 13px;
+                color: #999;
+                border-left: 3px solid #c084b8;
+            }
+
+            /* Progress Bar */
+            .progress-section {
+                margin-bottom: 36px;
+                text-align: center;
+            }
+            .progress-label {
+                font-size: 14px;
+                font-weight: 700;
+                color: #888;
+                margin-bottom: 10px;
+            }
+            .progress-label em {
+                color: #c084b8;
+                font-style: normal;
+                font-weight: 800;
+            }
+            .progress-track {
+                width: 100%;
+                max-width: 400px;
+                height: 8px;
+                background: rgba(0, 0, 0, 0.05);
+                border-radius: 4px;
+                overflow: hidden;
+                margin: 0 auto;
+            }
+            .progress-fill {
+                height: 100%;
+                width: 0%;
+                background: linear-gradient(90deg, #c084b8, #93b5e1);
+                border-radius: 4px;
+                transition: width 0.6s ease;
+            }
+
+            /* Cards Grid */
+            .cards-grid {
+                display: flex;
+                gap: 24px;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-bottom: 40px;
+            }
+
+            /* Card */
+            .frag-card {
+                background: white;
+                width: 260px;
+                border-radius: 18px;
+                overflow: hidden;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+                border: 1px solid #f0e8f0;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+                text-decoration: none;
+                color: inherit;
+            }
+            .frag-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 16px 40px rgba(192, 132, 184, 0.15);
+                border-color: #d4b0d0;
+            }
+
+            .frag-card-header {
+                padding: 12px 18px;
+                background: #faf6fa;
+                border-bottom: 1px solid #f0e8f0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .frag-card-id {
+                font-family: monospace;
+                font-size: 11px;
+                color: #b0a0b0;
+                font-weight: bold;
+            }
+            .frag-card-status {
+                font-size: 10px;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-weight: 700;
+            }
+            .status-pending {
+                color: #c084b8;
+                border: 1px solid #c084b8;
+                background: transparent;
+            }
+            .status-done {
+                color: #10b981;
+                border: 1px solid #10b981;
+                background: rgba(16, 185, 129, 0.06);
+            }
+
+            .frag-card-body {
+                padding: 24px 18px;
+                text-align: center;
+                flex: 1;
+            }
+            .frag-card-icon {
+                font-size: 36px;
+                margin-bottom: 12px;
+                display: inline-block;
+                filter: grayscale(60%);
+                transition: filter 0.3s;
+            }
+            .frag-card:hover .frag-card-icon,
+            .frag-card.collected .frag-card-icon {
+                filter: grayscale(0%);
+            }
+            .frag-card-body h3 {
+                font-size: 17px;
+                font-weight: 800;
+                color: #2c3e50;
+                margin-bottom: 8px;
+            }
+            .frag-card-body p {
+                font-size: 13px;
+                color: #888;
+                line-height: 1.6;
+            }
+
+            .frag-card-footer {
+                padding: 14px 18px;
+                border-top: 1px dashed #f0e8f0;
+                text-align: center;
+            }
+            .frag-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: transparent;
+                border: 1px solid #d0c4d0;
+                color: #999;
+                padding: 8px 20px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 600;
+                transition: all 0.2s;
+                cursor: pointer;
+                font-family: inherit;
+            }
+            .frag-card:hover .frag-btn {
+                background: linear-gradient(135deg, #c084b8, #93b5e1);
+                border-color: transparent;
+                color: white;
+            }
+            .frag-card.collected .frag-btn {
+                color: #10b981;
+                border-color: #10b981;
+            }
+            .frag-card.collected:hover .frag-btn {
+                background: #10b981;
+                border-color: #10b981;
+                color: white;
+            }
+
+            /* Collected History */
+            .history-section {
+                margin-top: 10px;
+            }
+            .history-section h3 {
+                font-size: 15px;
+                font-weight: 700;
+                color: #888;
+                margin-bottom: 14px;
+            }
+            .history-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .history-item {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                background: rgba(255, 255, 255, 0.8);
+                border: 1px solid #f0e8f0;
+                border-radius: 12px;
+                padding: 14px 18px;
+                transition: all 0.2s;
+            }
+            .history-item:hover {
+                border-color: #d4b0d0;
+                transform: translateX(4px);
+            }
+            .history-icon {
+                font-size: 24px;
+                flex-shrink: 0;
+            }
+            .history-info {
+                flex: 1;
+            }
+            .history-name {
+                font-size: 14px;
+                font-weight: 700;
+                color: #2c3e50;
+            }
+            .history-type {
+                font-size: 13px;
+                color: #c084b8;
+                font-weight: 600;
+            }
+            .history-time {
+                font-size: 11px;
+                color: #bbb;
+                font-family: monospace;
+                flex-shrink: 0;
+            }
+
+            .empty-history {
+                text-align: center;
+                padding: 30px;
+                color: #ccc;
+                font-size: 14px;
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .cards-grid {
+                    flex-direction: column;
+                    align-items: center;
+                }
+                .frag-card {
+                    width: 100%;
+                    max-width: 360px;
+                }
+                .page-header h1 {
+                    font-size: 28px;
+                }
+                .intro-box {
+                    padding: 22px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="top-nav">
+            <a class="logo" href="index.html">🔮 Inner<span>Space</span></a>
+            <div style="display: flex; align-items: center; gap: 20px">
+                <a
+                    class="back-link"
+                    href="#"
+                    onclick="DataManager.export();return false;"
+                    >导出数据</a
+                >
+                <a
+                    class="back-link"
+                    href="#"
+                    onclick="DataManager.import();return false;"
+                    >导入数据</a
+                >
+                <a class="back-link" href="index.html">← 返回实验室</a>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="page-header">
+                <h1>碎片空间</h1>
+                <p>收集你的人格碎片，拼凑完整的自己</p>
+            </div>
+
+            <div class="intro-box">
+                <span class="intro-icon">🧩</span>
+                <p>
+                    每个人都是一面被打碎的镜子——碎片散落在记忆、情绪和无意识的角落。
+                </p>
+                <p>
+                    碎片空间是你的<strong>安全港湾</strong>。在这里，没有对错，只有发现。每一次测评，都是温柔地捡起一块碎片，让你更完整地看见自己。
+                </p>
+                <div class="intro-tip">
+                    完成三个模块收集人格碎片，数据越完整，沙盘推演越精准。
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-section">
+                <div class="progress-label">
+                    已收集 <em id="progress-count">0</em> / 3 碎片
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- Cards -->
+            <div class="cards-grid" id="cards-grid">
+                <a
+                    class="frag-card"
+                    id="card-core"
+                    href="assessment.html?module=core"
+                >
+                    <div class="frag-card-header">
+                        <span class="frag-card-id">NO.001 - CORE</span>
+                        <span
+                            class="frag-card-status status-pending"
+                            id="status-core"
+                            >未收集</span
+                        >
+                    </div>
+                    <div class="frag-card-body">
+                        <div class="frag-card-icon">🧬</div>
+                        <h3>人格基石数据</h3>
+                        <p id="desc-core">
+                            你的"出厂设置"是什么？测测你的大五人格底层代码。
+                        </p>
+                    </div>
+                    <div class="frag-card-footer">
+                        <button class="frag-btn" id="btn-core">采集碎片</button>
+                    </div>
+                </a>
+
+                <a
+                    class="frag-card"
+                    id="card-emotion"
+                    href="assessment.html?module=emotion"
+                >
+                    <div class="frag-card-header">
+                        <span class="frag-card-id">NO.002 - EMOTION</span>
+                        <span
+                            class="frag-card-status status-pending"
+                            id="status-emotion"
+                            >未收集</span
+                        >
+                    </div>
+                    <div class="frag-card-body">
+                        <div class="frag-card-icon">💞</div>
+                        <h3>依恋模式代码</h3>
+                        <p id="desc-emotion">
+                            解析你在亲密关系中的焦虑与回避指数，解锁情感隐藏剧本。
+                        </p>
+                    </div>
+                    <div class="frag-card-footer">
+                        <button class="frag-btn" id="btn-emotion">
+                            采集碎片
+                        </button>
+                    </div>
+                </a>
+
+                <a
+                    class="frag-card"
+                    id="card-shadow"
+                    href="assessment.html?module=shadow"
+                >
+                    <div class="frag-card-header">
+                        <span class="frag-card-id">NO.003 - SHADOW</span>
+                        <span
+                            class="frag-card-status status-pending"
+                            id="status-shadow"
+                            >未收集</span
+                        >
+                    </div>
+                    <div class="frag-card-body">
+                        <div class="frag-card-icon">🌒</div>
+                        <h3>潜意识阴影探测</h3>
+                        <p id="desc-shadow">
+                            那些你不敢面对的自己。挖掘被压抑的欲望、恐惧与防御机制。
+                        </p>
+                    </div>
+                    <div class="frag-card-footer">
+                        <button class="frag-btn" id="btn-shadow">
+                            采集碎片
+                        </button>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Collected History -->
+            <div
+                class="history-section"
+                id="history-section"
+                style="display: none"
+            >
+                <h3>已收集的碎片</h3>
+                <div class="history-list" id="history-list"></div>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                var MODULE_INFO = {
+                    core: { icon: "🧬", name: "人格基石数据" },
+                    emotion: { icon: "💞", name: "依恋模式代码" },
+                    shadow: { icon: "🌒", name: "潜意识阴影探测" },
+                };
+
+                var modules = ["core", "emotion", "shadow"];
+                var completedCount = 0;
+                var completedModules = [];
+                var results = null;
+
+                try {
+                    var stored = localStorage.getItem("innerspace_results");
+                    if (stored) {
+                        results = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    // localStorage 不可用或数据异常
+                }
+
+                if (results) {
+                    modules.forEach(function (id) {
+                        try {
+                            if (!results[id]) return;
+                            completedCount++;
+
+                            var card = document.getElementById("card-" + id);
+                            var statusEl = document.getElementById(
+                                "status-" + id,
+                            );
+                            var descEl = document.getElementById("desc-" + id);
+                            var btnEl = document.getElementById("btn-" + id);
+
+                            if (card) card.classList.add("collected");
+                            if (statusEl) {
+                                statusEl.textContent = "已收集";
+                                statusEl.className =
+                                    "frag-card-status status-done";
+                            }
+                            if (btnEl) btnEl.textContent = "查看详情";
+
+                            var data = results[id].data;
+                            if (data && data.typeName && descEl) {
+                                descEl.textContent =
+                                    "「" + data.typeName + "」";
+                            }
+
+                            completedModules.push({
+                                id: id,
+                                icon: MODULE_INFO[id].icon,
+                                name: MODULE_INFO[id].name,
+                                typeName:
+                                    data && data.typeName ? data.typeName : "",
+                                timestamp: results[id].timestamp,
+                            });
+                        } catch (e) {
+                            // 单个模块处理失败，继续处理其他模块
+                        }
+                    });
+                }
+
+                // Update progress (always runs)
+                var countEl = document.getElementById("progress-count");
+                var fillEl = document.getElementById("progress-fill");
+                if (countEl) countEl.textContent = completedCount;
+                if (fillEl)
+                    fillEl.style.width =
+                        Math.round((completedCount / 3) * 100) + "%";
+
+                // Render history
+                if (completedModules.length > 0) {
+                    var section = document.getElementById("history-section");
+                    var list = document.getElementById("history-list");
+                    if (!section || !list) return;
+
+                    section.style.display = "block";
+                    var html = "";
+                    completedModules.forEach(function (m) {
+                        var timeStr = "";
+                        if (m.timestamp) {
+                            var d = new Date(m.timestamp);
+                            timeStr =
+                                d.getFullYear() +
+                                "/" +
+                                String(d.getMonth() + 1).padStart(2, "0") +
+                                "/" +
+                                String(d.getDate()).padStart(2, "0") +
+                                " " +
+                                String(d.getHours()).padStart(2, "0") +
+                                ":" +
+                                String(d.getMinutes()).padStart(2, "0");
+                        }
+                        html += '<div class="history-item">';
+                        html +=
+                            '<span class="history-icon">' + m.icon + "</span>";
+                        html += '<div class="history-info">';
+                        html +=
+                            '<div class="history-name">' + m.name + "</div>";
+                        if (m.typeName) {
+                            html +=
+                                '<div class="history-type">「' +
+                                m.typeName +
+                                "」</div>";
+                        }
+                        html += "</div>";
+                        if (timeStr) {
+                            html +=
+                                '<span class="history-time">' +
+                                timeStr +
+                                "</span>";
+                        }
+                        html += "</div>";
+                    });
+                    list.innerHTML = html;
+                }
+            })();
+        </script>
+        <script src="js/data-manager.js"></script>
+    </body>
+</html>

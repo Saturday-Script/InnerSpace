@@ -1,0 +1,1632 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>InnerSpace - 命运沙盘推演</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+                background: radial-gradient(
+                    circle at 50% 10%,
+                    #1e293b 0%,
+                    #0f172a 100%
+                );
+                min-height: 100vh;
+                color: #e2e8f0;
+                position: relative;
+            }
+
+            /* Background grid */
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image:
+                    linear-gradient(
+                        rgba(255, 255, 255, 0.03) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(255, 255, 255, 0.03) 1px,
+                        transparent 1px
+                    );
+                background-size: 50px 50px;
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            /* Navigation */
+            .top-nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px 8%;
+                background: rgba(15, 23, 42, 0.8);
+                backdrop-filter: blur(10px);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            .logo {
+                font-size: 22px;
+                font-weight: 800;
+                color: #fff;
+                text-decoration: none;
+            }
+            .logo span {
+                color: #818cf8;
+            }
+            .back-link {
+                color: #94a3b8;
+                text-decoration: none;
+                font-size: 14px;
+                transition: 0.3s;
+            }
+            .back-link:hover {
+                color: #fff;
+            }
+
+            /* Main Container */
+            .container {
+                max-width: 800px;
+                margin: 40px auto;
+                padding: 0 20px 60px;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* Headers */
+            .page-header {
+                text-align: center;
+                margin-bottom: 50px;
+            }
+            .page-header h1 {
+                font-size: 36px;
+                margin-bottom: 10px;
+                background: linear-gradient(to right, #fff, #94a3b8);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .page-header p {
+                color: #64748b;
+                font-size: 16px;
+            }
+
+            /* --- Phase Indicator --- */
+            .phase-indicator {
+                max-width: 600px;
+                margin: 0 auto 30px;
+                padding: 0 20px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .phase-indicator.hidden {
+                display: none;
+            }
+            .phase-step {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                color: #475569;
+                transition: color 0.3s;
+            }
+            .phase-step.active {
+                color: #a78bfa;
+            }
+            .phase-step.done {
+                color: #4ade80;
+            }
+            .phase-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #334155;
+                transition: background 0.3s;
+            }
+            .phase-step.active .phase-dot {
+                background: #a78bfa;
+                box-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
+            }
+            .phase-step.done .phase-dot {
+                background: #4ade80;
+            }
+            .phase-line {
+                flex: 1;
+                height: 1px;
+                background: #334155;
+            }
+            .progress-detail {
+                font-size: 12px;
+                color: #64748b;
+                font-family: monospace;
+                font-weight: bold;
+                margin-left: auto;
+            }
+
+            /* --- STAGE 1: Input --- */
+            .input-card {
+                background: rgba(30, 41, 59, 0.7);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 40px;
+                text-align: center;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+                animation: fadeIn 0.5s ease;
+            }
+            textarea {
+                width: 100%;
+                height: 150px;
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                color: #fff;
+                padding: 20px;
+                font-size: 16px;
+                resize: none;
+                outline: none;
+                margin-bottom: 30px;
+                line-height: 1.6;
+                font-family: inherit;
+            }
+            textarea:focus {
+                border-color: #818cf8;
+                background: rgba(0, 0, 0, 0.5);
+            }
+            .sandbox-guide {
+                text-align: left;
+                background: rgba(99, 102, 241, 0.06);
+                border: 1px solid rgba(99, 102, 241, 0.15);
+                border-radius: 12px;
+                padding: 18px 22px;
+                margin-bottom: 24px;
+            }
+            .sandbox-guide .guide-title {
+                font-size: 13px;
+                font-weight: 700;
+                color: #818cf8;
+                margin-bottom: 8px;
+            }
+            .sandbox-guide p {
+                font-size: 13px;
+                color: #94a3b8;
+                line-height: 1.8;
+                margin: 0 0 6px 0;
+            }
+            .sandbox-guide p:last-child {
+                margin-bottom: 0;
+            }
+            .sandbox-guide b {
+                color: #cbd5e1;
+            }
+            .btn-next {
+                background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+                color: white;
+                border: none;
+                padding: 12px 40px;
+                border-radius: 50px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: 0.3s;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            }
+            .btn-next:hover {
+                transform: scale(1.05);
+            }
+
+            /* --- STAGE 2: Mode Selection --- */
+            .mode-selection {
+                display: none;
+                text-align: center;
+                animation: slideUp 0.5s ease;
+            }
+            .mode-grid {
+                display: flex;
+                gap: 30px;
+                margin-top: 40px;
+                justify-content: center;
+            }
+            .mode-card {
+                flex: 1;
+                max-width: 300px;
+                background: rgba(30, 41, 59, 0.4);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 30px 20px;
+                cursor: pointer;
+                transition: all 0.3s;
+                position: relative;
+                overflow: hidden;
+            }
+            .mode-card:hover {
+                transform: translateY(-10px);
+            }
+            .mode-happy:hover {
+                border-color: #facc15;
+                box-shadow: 0 0 30px rgba(250, 204, 21, 0.2);
+            }
+            .mode-happy .icon {
+                font-size: 40px;
+                margin-bottom: 20px;
+                display: block;
+            }
+            .mode-happy h3 {
+                color: #facc15;
+                margin-bottom: 10px;
+                font-size: 22px;
+            }
+            .mode-hard:hover {
+                border-color: #f43f5e;
+                box-shadow: 0 0 30px rgba(244, 63, 94, 0.2);
+            }
+            .mode-hard .icon {
+                font-size: 40px;
+                margin-bottom: 20px;
+                display: block;
+            }
+            .mode-hard h3 {
+                color: #f43f5e;
+                margin-bottom: 10px;
+                font-size: 22px;
+            }
+            .mode-desc {
+                font-size: 13px;
+                color: #94a3b8;
+                line-height: 1.6;
+            }
+
+            /* --- STAGE: Loading --- */
+            .loading-view {
+                display: none;
+                text-align: center;
+                padding: 100px 0;
+                animation: fadeIn 0.3s ease;
+            }
+            .spinner {
+                width: 50px;
+                height: 50px;
+                border: 3px solid rgba(255, 255, 255, 0.1);
+                border-top-color: #818cf8;
+                border-radius: 50%;
+                margin: 0 auto 20px;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* --- STAGE: Gather (info collection) --- */
+            .gather-view {
+                display: none;
+                animation: fadeIn 0.6s ease;
+            }
+            .gather-card {
+                background: rgba(30, 41, 59, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 24px;
+                overflow: hidden;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            }
+            .gather-header {
+                padding: 20px 30px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                background: rgba(0, 0, 0, 0.2);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .gather-badge {
+                font-family: monospace;
+                font-size: 12px;
+                color: #60a5fa;
+                background: rgba(96, 165, 250, 0.15);
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-weight: bold;
+                flex-shrink: 0;
+            }
+            .gather-label {
+                font-size: 14px;
+                color: #94a3b8;
+            }
+            .gather-body {
+                padding: 30px;
+            }
+            .gather-question {
+                font-size: 18px;
+                font-weight: 700;
+                color: #fff;
+                line-height: 1.7;
+                margin-bottom: 28px;
+            }
+
+            /* --- Custom Input Option (gather phase) --- */
+            .custom-input-option {
+                display: flex;
+                align-items: flex-start;
+                gap: 14px;
+                width: 100%;
+                padding: 14px 22px;
+                border: 2px dashed rgba(255, 255, 255, 0.1);
+                border-radius: 14px;
+                background: rgba(255, 255, 255, 0.02);
+                transition: border-color 0.25s;
+            }
+            .custom-input-option:focus-within {
+                border-color: #818cf8;
+            }
+            .custom-input-option .choice-label {
+                margin-top: 6px;
+            }
+            .custom-input-wrap {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .custom-input-hint {
+                font-size: 13px;
+                color: #64748b;
+            }
+            .custom-input-row {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+            .custom-input-field {
+                flex: 1;
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                color: #fff;
+                padding: 10px 14px;
+                font-size: 14px;
+                font-family: inherit;
+                outline: none;
+            }
+            .custom-input-field:focus {
+                border-color: #818cf8;
+            }
+            .custom-input-submit {
+                background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: 0.2s;
+                white-space: nowrap;
+                font-family: inherit;
+            }
+            .custom-input-submit:hover {
+                transform: scale(1.05);
+            }
+            .custom-input-submit:disabled {
+                opacity: 0.4;
+                cursor: default;
+                transform: none;
+            }
+
+            /* --- Shared: Choice Buttons (used in gather) --- */
+            .choices-list {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .choice-btn {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                width: 100%;
+                padding: 18px 22px;
+                border: 2px solid rgba(255, 255, 255, 0.08);
+                border-radius: 14px;
+                background: rgba(255, 255, 255, 0.03);
+                cursor: pointer;
+                text-align: left;
+                transition: all 0.25s ease;
+                font-size: 15px;
+                color: #cbd5e1;
+                font-family: inherit;
+            }
+            .choice-btn:hover {
+                border-color: #818cf8;
+                background: rgba(129, 140, 248, 0.08);
+                transform: translateX(6px);
+                box-shadow: 0 4px 20px rgba(129, 140, 248, 0.15);
+            }
+            .choice-btn:active {
+                transform: translateX(3px);
+            }
+            .choice-label {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.05);
+                border: 2px solid rgba(255, 255, 255, 0.12);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 800;
+                font-size: 13px;
+                color: #64748b;
+                flex-shrink: 0;
+                transition: all 0.25s;
+            }
+            .choice-btn:hover .choice-label {
+                background: #818cf8;
+                border-color: #818cf8;
+                color: white;
+            }
+            .choice-text {
+                flex: 1;
+                line-height: 1.5;
+            }
+
+            /* --- Shared: Tarot Card Interface (used in scene) --- */
+            .scene-body .choices-list {
+                flex-direction: row;
+                justify-content: center;
+                gap: 24px;
+                flex-wrap: wrap;
+                margin-top: 20px;
+            }
+
+            .tarot-card {
+                position: relative;
+                width: 45%;
+                min-width: 280px;
+                min-height: 320px;
+                background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                padding: 30px 24px;
+                cursor: pointer;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                overflow: hidden;
+            }
+
+            .tarot-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            .tarot-card:hover {
+                transform: translateY(-15px) scale(1.02);
+                z-index: 10;
+            }
+
+            /* Happy mode tarot */
+            body[data-mode="happy"] .tarot-card {
+                border-color: rgba(250, 204, 21, 0.3);
+            }
+            body[data-mode="happy"] .tarot-card:hover {
+                box-shadow: 0 20px 50px rgba(250, 204, 21, 0.15);
+                border-color: rgba(250, 204, 21, 0.8);
+            }
+            body[data-mode="happy"] .tarot-icon {
+                color: #facc15;
+                text-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+            }
+
+            /* Hard mode tarot */
+            body[data-mode="hard"] .tarot-card {
+                border-color: rgba(244, 63, 94, 0.3);
+                background: linear-gradient(160deg, #2a0a12 0%, #0f172a 100%);
+            }
+            body[data-mode="hard"] .tarot-card:hover {
+                box-shadow: 0 20px 50px rgba(244, 63, 94, 0.2);
+                border-color: rgba(244, 63, 94, 0.8);
+            }
+            body[data-mode="hard"] .tarot-icon {
+                color: #f43f5e;
+                text-shadow: 0 0 15px rgba(244, 63, 94, 0.6);
+            }
+
+            .tarot-content {
+                position: relative;
+                z-index: 1;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .tarot-header {
+                font-family: "Times New Roman", serif;
+                font-size: 14px;
+                color: #64748b;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                margin-bottom: 20px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 10px;
+                width: 100%;
+            }
+
+            .tarot-icon {
+                font-size: 48px;
+                margin-bottom: 20px;
+                transition: transform 0.4s ease;
+            }
+            .tarot-card:hover .tarot-icon {
+                transform: scale(1.2) rotate(5deg);
+            }
+
+            .tarot-text {
+                font-size: 16px;
+                line-height: 1.8;
+                color: #e2e8f0;
+                flex-grow: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .tarot-footer {
+                margin-top: 20px;
+                font-size: 12px;
+                color: #94a3b8;
+                opacity: 0;
+                transform: translateY(10px);
+                transition: all 0.3s ease;
+            }
+            .tarot-card:hover .tarot-footer {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* --- STAGE: Scene (interactive rounds) --- */
+            .scene-view {
+                display: none;
+                animation: fadeIn 0.6s ease;
+            }
+            .scene-card {
+                background: rgba(30, 41, 59, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 24px;
+                overflow: hidden;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            }
+            .scene-header {
+                padding: 24px 30px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                background: rgba(0, 0, 0, 0.2);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .scene-round-badge {
+                font-family: monospace;
+                font-size: 12px;
+                color: #a78bfa;
+                background: rgba(167, 139, 250, 0.15);
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-weight: bold;
+                flex-shrink: 0;
+            }
+            .scene-title {
+                font-size: 20px;
+                font-weight: bold;
+                color: #fff;
+            }
+            .scene-body {
+                padding: 30px;
+            }
+            .scene-narrative {
+                font-size: 16px;
+                line-height: 2;
+                color: #cbd5e1;
+                margin-bottom: 35px;
+                padding-left: 16px;
+                border-left: 3px solid #818cf8;
+            }
+            .scene-choices-label {
+                font-size: 13px;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-weight: bold;
+                margin-bottom: 16px;
+            }
+
+            /* --- STAGE: Result (ending) --- */
+            .result-view {
+                display: none;
+                animation: fadeIn 0.8s ease;
+            }
+            .result-card {
+                background: rgba(30, 41, 59, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 24px;
+                overflow: hidden;
+            }
+            .result-header {
+                padding: 30px;
+                text-align: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                background: rgba(0, 0, 0, 0.2);
+            }
+            .result-title {
+                font-size: 24px;
+                font-weight: bold;
+                color: #fff;
+                margin-bottom: 8px;
+            }
+            .result-tag {
+                display: inline-block;
+                font-size: 12px;
+                padding: 4px 12px;
+                border-radius: 20px;
+                margin-bottom: 15px;
+                font-weight: bold;
+            }
+            .tag-happy {
+                background: rgba(250, 204, 21, 0.2);
+                color: #facc15;
+                border: 1px solid rgba(250, 204, 21, 0.3);
+            }
+            .tag-hard {
+                background: rgba(244, 63, 94, 0.2);
+                color: #f43f5e;
+                border: 1px solid rgba(244, 63, 94, 0.3);
+            }
+
+            .result-body {
+                padding: 30px;
+            }
+            .section-title {
+                font-size: 14px;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 15px;
+                font-weight: bold;
+            }
+            .result-narrative {
+                font-size: 16px;
+                line-height: 2;
+                color: #cbd5e1;
+                margin-bottom: 40px;
+                padding-left: 16px;
+                border-left: 3px solid #818cf8;
+            }
+            .analysis-text {
+                font-size: 15px;
+                line-height: 1.8;
+                color: #94a3b8;
+                margin-bottom: 40px;
+                padding: 20px;
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 12px;
+            }
+            .advice-box {
+                background: linear-gradient(
+                    135deg,
+                    rgba(99, 102, 241, 0.1),
+                    rgba(139, 92, 246, 0.1)
+                );
+                padding: 25px;
+                border-radius: 16px;
+                border: 1px solid rgba(139, 92, 246, 0.2);
+            }
+            .advice-text {
+                font-size: 15px;
+                color: #e2e8f0;
+                line-height: 1.8;
+            }
+
+            .btn-restart {
+                display: block;
+                width: 200px;
+                margin: 40px auto 0;
+                padding: 12px;
+                background: transparent;
+                border: 1px solid #64748b;
+                color: #94a3b8;
+                border-radius: 50px;
+                cursor: pointer;
+                transition: 0.3s;
+                font-size: 14px;
+                font-family: inherit;
+            }
+            .btn-restart:hover {
+                border-color: #fff;
+                color: #fff;
+            }
+
+            /* --- Error View --- */
+            .error-view {
+                display: none;
+                text-align: center;
+                padding: 80px 0;
+                animation: fadeIn 0.5s ease;
+            }
+            .error-icon {
+                font-size: 48px;
+                margin-bottom: 16px;
+                color: #f43f5e;
+            }
+            .error-view h3 {
+                font-size: 20px;
+                color: #fff;
+                margin-bottom: 10px;
+            }
+            .error-message {
+                font-size: 14px;
+                color: #94a3b8;
+                margin-bottom: 24px;
+                word-break: break-all;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* --- History Section --- */
+            .history-section {
+                margin-top: 40px;
+                text-align: left;
+            }
+            .history-section h3 {
+                font-size: 16px;
+                color: #64748b;
+                margin-bottom: 16px;
+                font-weight: 700;
+            }
+            .history-list {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .history-card {
+                background: rgba(30, 41, 59, 0.6);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 14px;
+                padding: 18px 22px;
+                cursor: pointer;
+                transition: all 0.25s ease;
+            }
+            .history-card:hover {
+                border-color: rgba(129, 140, 248, 0.4);
+                background: rgba(30, 41, 59, 0.8);
+            }
+            .history-card-header {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 6px;
+            }
+            .history-card-title {
+                font-size: 15px;
+                font-weight: 700;
+                color: #e2e8f0;
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .history-mode-tag {
+                font-size: 11px;
+                padding: 2px 10px;
+                border-radius: 20px;
+                font-weight: bold;
+                flex-shrink: 0;
+            }
+            .history-mode-tag.tag-happy {
+                background: rgba(250, 204, 21, 0.15);
+                color: #facc15;
+                border: 1px solid rgba(250, 204, 21, 0.3);
+            }
+            .history-mode-tag.tag-hard {
+                background: rgba(244, 63, 94, 0.15);
+                color: #f43f5e;
+                border: 1px solid rgba(244, 63, 94, 0.3);
+            }
+            .history-card-meta {
+                font-size: 12px;
+                color: #475569;
+                margin-bottom: 4px;
+            }
+            .history-card-situation {
+                font-size: 13px;
+                color: #64748b;
+                line-height: 1.5;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .history-card-detail {
+                display: none;
+                margin-top: 16px;
+                padding-top: 16px;
+                border-top: 1px solid rgba(255, 255, 255, 0.06);
+            }
+            .history-card.expanded .history-card-detail {
+                display: block;
+            }
+            .history-detail-section {
+                margin-bottom: 16px;
+            }
+            .history-detail-section:last-child {
+                margin-bottom: 0;
+            }
+            .history-detail-label {
+                font-size: 12px;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-weight: bold;
+                margin-bottom: 8px;
+            }
+            .history-detail-text {
+                font-size: 14px;
+                line-height: 1.8;
+                color: #94a3b8;
+            }
+            .history-detail-narrative {
+                padding-left: 12px;
+                border-left: 2px solid #818cf8;
+                color: #cbd5e1;
+            }
+            .history-detail-advice {
+                background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
+                padding: 14px 18px;
+                border-radius: 10px;
+                border: 1px solid rgba(139, 92, 246, 0.15);
+            }
+
+            /* Mobile */
+            @media (max-width: 600px) {
+                .mode-grid {
+                    flex-direction: column;
+                }
+                .scene-header, .gather-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 8px;
+                }
+                .scene-body, .gather-body, .result-body {
+                    padding: 20px;
+                }
+                .choice-btn {
+                    padding: 14px 16px;
+                    font-size: 14px;
+                }
+                .phase-indicator {
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+                .tarot-card {
+                    width: 100%;
+                    min-height: 200px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="top-nav">
+            <a class="logo" href="index.html">🔮 Inner<span>Space</span></a>
+            <a class="back-link" href="index.html">← 返回实验室</a>
+        </nav>
+
+        <div class="container">
+            <div class="page-header">
+                <h1>命运沙盘推演</h1>
+                <p>基于你的人格副本，预演未来的无数种可能</p>
+            </div>
+
+            <!-- Phase Indicator (hidden by default) -->
+            <div id="phase-indicator" class="phase-indicator hidden">
+                <div class="phase-step" id="phase-gather">
+                    <span class="phase-dot"></span>
+                    <span>了解情况</span>
+                </div>
+                <div class="phase-line"></div>
+                <div class="phase-step" id="phase-scene">
+                    <span class="phase-dot"></span>
+                    <span>沉浸推演</span>
+                </div>
+                <div class="phase-line"></div>
+                <div class="phase-step" id="phase-ending">
+                    <span class="phase-dot"></span>
+                    <span>结局报告</span>
+                </div>
+                <span class="progress-detail" id="progress-detail"></span>
+            </div>
+
+            <!-- Stage: Input -->
+            <div id="stage-input" class="input-card">
+                <h2 style="margin-bottom: 20px; font-size: 20px; color: #fff">
+                    告诉我，你现在面临的困境是什么？
+                </h2>
+                <textarea
+                    id="situation-text"
+                    placeholder="例如：我不知道该不该接受这份offer、我和伴侣吵了一架不知道怎么处理、我在考虑要不要辞职..."
+                ></textarea>
+                <div class="sandbox-guide">
+                    <div class="guide-title">这是什么？</div>
+                    <p>沙盘推演是 AI 基于你的人格数据<b>模拟</b>的心理情境剧，不是对未来的预测。推演中的场景可能与现实细节不同——这是正常的，重要的不是剧情本身，而是<b>你在每个岔路口的直觉反应</b>。</p>
+                    <p>选择时不需要"想清楚"，跟着第一感觉走：哪个选项让你心里"咯噔"一下，就选它。你的选择模式会揭示潜意识里真正在意的东西。</p>
+                </div>
+                <button class="btn-next" onclick="goToModeSelection()">
+                    下一步：选择推演模式
+                </button>
+                <!-- History Section (shown on input page) -->
+                <div id="history-section" class="history-section" style="display:none;"></div>
+            </div>
+
+            <!-- Stage: Mode Selection -->
+            <div id="stage-mode" class="mode-selection">
+                <h2 style="margin-bottom: 10px; font-size: 20px; color: #fff">
+                    选择一种"可能性"进行观测
+                </h2>
+                <p style="color: #64748b; font-size: 14px">
+                    这决定了 AI 推演时的环境参数和你的人格状态
+                </p>
+                <div class="mode-grid">
+                    <div class="mode-card mode-happy" onclick="startSimulation('happy')">
+                        <span class="icon">🌟</span>
+                        <h3>幸福模式</h3>
+                        <p class="mode-desc">
+                            假设你处于高能状态，能够从容调用你性格中的优势。<br />
+                            外部环境是友善的，你将看到事情<b>最好的发展方向</b>。
+                        </p>
+                    </div>
+                    <div class="mode-card mode-hard" onclick="startSimulation('hard')">
+                        <span class="icon">🌪️</span>
+                        <h3>困难模式</h3>
+                        <p class="mode-desc">
+                            假设你处于压力状态，性格中的防御机制被触发。<br />
+                            外部环境充满挑战，你将看到<b>最坏的风险与陷阱</b>。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage: Loading -->
+            <div id="stage-loading" class="loading-view">
+                <div class="spinner"></div>
+                <p id="loading-text" style="color: #94a3b8">正在读取你的人格碎片...</p>
+            </div>
+
+            <!-- Stage: Gather (info collection) -->
+            <div id="stage-gather" class="gather-view">
+                <div class="gather-card">
+                    <div class="gather-header">
+                        <span class="gather-badge" id="gather-badge">1 / 3</span>
+                        <span class="gather-label">了解你的情况</span>
+                    </div>
+                    <div class="gather-body">
+                        <h2 class="gather-question" id="gather-question"></h2>
+                        <div class="choices-list" id="gather-choices"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage: Scene (interactive rounds) -->
+            <div id="stage-scene" class="scene-view">
+                <div class="scene-card">
+                    <div class="scene-header">
+                        <span class="scene-round-badge" id="scene-round-badge">Round 1 / 4</span>
+                        <h2 class="scene-title" id="scene-title"></h2>
+                    </div>
+                    <div class="scene-body">
+                        <div class="scene-narrative" id="scene-narrative"></div>
+                        <div class="scene-choices-label">翻开你的命运牌 — 选最接近你直觉反应的那张</div>
+                        <div class="choices-list" id="scene-choices"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage: Result (ending) -->
+            <div id="stage-result" class="result-view">
+                <div class="result-card">
+                    <div class="result-header">
+                        <span id="result-tag" class="result-tag"></span>
+                        <h2 id="result-title" class="result-title"></h2>
+                    </div>
+                    <div class="result-body">
+                        <div class="section-title">结局</div>
+                        <div id="result-narrative" class="result-narrative"></div>
+
+                        <div class="section-title">因果分析</div>
+                        <div id="result-analysis" class="analysis-text"></div>
+
+                        <div class="advice-box">
+                            <div class="section-title" style="text-align: center; color: #818cf8; margin-bottom: 10px;">
+                                🔮 决策参考建议
+                            </div>
+                            <p id="result-advice" class="advice-text"></p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-restart" onclick="restartSimulation()">
+                    ↺ 重新推演
+                </button>
+            </div>
+
+            <!-- Stage: Error -->
+            <div id="stage-error" class="error-view">
+                <div class="error-icon">⚠</div>
+                <h3>推演遇到了一点时空乱流</h3>
+                <p class="error-message" id="error-message"></p>
+                <button class="btn-restart" onclick="restartSimulation()">↺ 重新开始</button>
+            </div>
+        </div>
+
+        <script src="js/llm-client.js"></script>
+        <script src="js/prompts.js"></script>
+        <script>
+            // ===== Two-Phase State Machine =====
+            // Phase 1: gather (info collection) → Phase 2: scene (simulation) → ending
+
+            var currentSituation = "";
+            var currentMode = "";           // 'happy' | 'hard'
+            var messages = [];              // full conversation history
+            var phase = "idle";             // idle | gather | scene | ending
+            var gatherRound = 0;
+            var gatherTotal = 3;
+            var sceneRound = 0;
+            var sceneTotal = 4;
+            var lastStageData = null;       // last gather/scene data for session restore
+            var lastStageType = "";         // "gather" | "scene"
+
+            var SESSION_KEY = "innerspace_sandbox_session";
+
+            // --- Utility ---
+
+            function escapeHTML(str) {
+                if (!str) return "";
+                return String(str)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+
+            // --- Session Persistence ---
+
+            function saveSession() {
+                try {
+                    localStorage.setItem(SESSION_KEY, JSON.stringify({
+                        currentSituation: currentSituation,
+                        currentMode: currentMode,
+                        messages: messages,
+                        phase: phase,
+                        gatherRound: gatherRound,
+                        gatherTotal: gatherTotal,
+                        sceneRound: sceneRound,
+                        sceneTotal: sceneTotal,
+                        lastStageData: lastStageData,
+                        lastStageType: lastStageType
+                    }));
+                } catch (e) {}
+            }
+
+            function loadSession() {
+                try {
+                    var stored = localStorage.getItem(SESSION_KEY);
+                    if (!stored) return null;
+                    return JSON.parse(stored);
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            function clearSession() {
+                try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+            }
+
+            // --- Stage Visibility ---
+
+            var ALL_STAGES = ["stage-input", "stage-mode", "stage-loading", "stage-gather", "stage-scene", "stage-result", "stage-error"];
+
+            function hideAllStages() {
+                for (var i = 0; i < ALL_STAGES.length; i++) {
+                    document.getElementById(ALL_STAGES[i]).style.display = "none";
+                }
+            }
+
+            function showStage(stageId) {
+                hideAllStages();
+                document.getElementById(stageId).style.display = "block";
+            }
+
+            // --- Phase Indicator ---
+
+            function updatePhaseIndicator(activePhase, detail) {
+                var el = document.getElementById("phase-indicator");
+                el.classList.remove("hidden");
+
+                var phases = ["gather", "scene", "ending"];
+                var ids = ["phase-gather", "phase-scene", "phase-ending"];
+                var activeIndex = phases.indexOf(activePhase);
+
+                for (var i = 0; i < ids.length; i++) {
+                    var step = document.getElementById(ids[i]);
+                    step.className = "phase-step";
+                    if (i < activeIndex) {
+                        step.classList.add("done");
+                    } else if (i === activeIndex) {
+                        step.classList.add("active");
+                    }
+                }
+
+                document.getElementById("progress-detail").textContent = detail || "";
+            }
+
+            function hidePhaseIndicator() {
+                document.getElementById("phase-indicator").classList.add("hidden");
+            }
+
+            // --- Flow: Input → Mode Selection ---
+
+            function goToModeSelection() {
+                var input = document.getElementById("situation-text").value.trim();
+                if (!input) {
+                    alert("请先描述你的情况，哪怕只有一句话。");
+                    return;
+                }
+                currentSituation = input;
+                showStage("stage-mode");
+            }
+
+            // --- Flow: Mode Selection → First AI call (gather phase) ---
+
+            function startSimulation(mode) {
+                currentMode = mode;
+                gatherRound = 0;
+                gatherTotal = 3;
+                sceneRound = 0;
+                sceneTotal = 4;
+                lastStageData = null;
+                lastStageType = "";
+                phase = "gather";
+
+                var systemPrompt = window.SANDBOX_CONFIG.getSystemPrompt(
+                    currentSituation,
+                    mode
+                );
+
+                messages = [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: "我的困境是：" + currentSituation }
+                ];
+
+                sendToAI();
+            }
+
+            // --- Core: Send to AI and dispatch by type ---
+
+            function sendToAI() {
+                saveSession();
+                showStage("stage-loading");
+
+                var loadingText = document.getElementById("loading-text");
+                if (phase === "gather" && gatherRound === 0) {
+                    loadingText.innerText = "正在分析你的情况...";
+                } else if (phase === "gather") {
+                    loadingText.innerText = "正在理解你的回答...";
+                } else if (phase === "scene" && sceneRound === 0) {
+                    loadingText.innerText =
+                        currentMode === "happy"
+                            ? "正在连接高维宇宙，调取你的高光时刻..."
+                            : "正在潜入潜意识深处，模拟压力环境...";
+                } else {
+                    loadingText.innerText = "命运齿轮正在转动...";
+                }
+
+                // Update phase indicator during loading
+                if (phase === "gather") {
+                    updatePhaseIndicator("gather", gatherRound + " / " + gatherTotal);
+                } else if (phase === "scene") {
+                    updatePhaseIndicator("scene", sceneRound + " / " + sceneTotal);
+                }
+
+                // Safety valve: force gather → scene transition
+                if (phase === "gather" && gatherRound >= 3) {
+                    messages.push({
+                        role: "system",
+                        content: "信息采集已经完成，请务必在本轮开始沉浸推演，输出 type: scene，不要再输出 type: gather。"
+                    });
+                }
+                // Safety valve: force scene → ending transition
+                if (sceneRound >= 7) {
+                    messages.push({
+                        role: "system",
+                        content: "推演已经进行了很多轮，请务必在本轮输出结局（type: ending）。"
+                    });
+                }
+
+                LLMClient.chatJSON(messages, { temperature: 0.85 })
+                    .then(function (data) {
+                        messages.push({
+                            role: "assistant",
+                            content: JSON.stringify(data)
+                        });
+
+                        if (data.type === "gather") {
+                            phase = "gather";
+                            gatherRound = data.round || (gatherRound + 1);
+                            gatherTotal = data.totalRounds || gatherTotal;
+                            lastStageData = data;
+                            lastStageType = "gather";
+                            saveSession();
+                            renderGather(data);
+                        } else if (data.type === "scene") {
+                            phase = "scene";
+                            sceneRound = data.round || (sceneRound + 1);
+                            sceneTotal = data.totalRounds || sceneTotal;
+                            lastStageData = data;
+                            lastStageType = "scene";
+                            saveSession();
+                            renderScene(data);
+                        } else if (data.type === "ending") {
+                            phase = "ending";
+                            lastStageData = null;
+                            lastStageType = "";
+                            clearSession();
+                            renderEnding(data);
+                        } else {
+                            // Fallback: treat as ending if has narrative/analysis
+                            if (data.narrative || data.analysis || data.advice) {
+                                phase = "ending";
+                                clearSession();
+                                renderEnding(data);
+                            } else {
+                                throw new Error("未知的AI响应类型: " + (data.type || "undefined"));
+                            }
+                        }
+                    })
+                    .catch(function (err) {
+                        phase = "error";
+                        saveSession();
+                        renderError(err.message);
+                    });
+            }
+
+            // --- Render: Gather (info collection question) ---
+
+            function renderGather(data) {
+                showStage("stage-gather");
+                updatePhaseIndicator("gather", data.round + " / " + (data.totalRounds || gatherTotal));
+
+                document.getElementById("gather-badge").textContent =
+                    data.round + " / " + (data.totalRounds || gatherTotal);
+                document.getElementById("gather-question").textContent = data.question || "";
+
+                var container = document.getElementById("gather-choices");
+                container.innerHTML = "";
+
+                // AI 给的预设选项
+                if (data.options && Array.isArray(data.options)) {
+                    for (var i = 0; i < data.options.length; i++) {
+                        (function (opt) {
+                            var btn = document.createElement("button");
+                            btn.className = "choice-btn";
+                            btn.innerHTML =
+                                '<span class="choice-label">' + escapeHTML(opt.label) + '</span>' +
+                                '<span class="choice-text">' + escapeHTML(opt.text) + '</span>';
+                            btn.addEventListener("click", function () {
+                                handleGatherChoice(opt);
+                            });
+                            container.appendChild(btn);
+                        })(data.options[i]);
+                    }
+                }
+
+                // 始终追加：自由输入选项
+                var customDiv = document.createElement("div");
+                customDiv.className = "custom-input-option";
+                customDiv.innerHTML =
+                    '<span class="choice-label">✎</span>' +
+                    '<div class="custom-input-wrap">' +
+                    '  <span class="custom-input-hint">以上都不太准确？用自己的话描述</span>' +
+                    '  <div class="custom-input-row">' +
+                    '    <input class="custom-input-field" id="gather-custom-input" type="text" placeholder="输入你的情况...">' +
+                    '    <button class="custom-input-submit" id="gather-custom-submit">提交</button>' +
+                    '  </div>' +
+                    '</div>';
+                container.appendChild(customDiv);
+
+                // 绑定提交事件
+                var submitBtn = document.getElementById("gather-custom-submit");
+                var inputField = document.getElementById("gather-custom-input");
+
+                submitBtn.addEventListener("click", function () {
+                    handleGatherCustomInput(inputField);
+                });
+                inputField.addEventListener("keydown", function (e) {
+                    if (e.key === "Enter") {
+                        handleGatherCustomInput(inputField);
+                    }
+                });
+            }
+
+            function handleGatherChoice(opt) {
+                var userMsg = "我选择 " + opt.label + "：" + opt.text;
+                messages.push({ role: "user", content: userMsg });
+                sendToAI();
+            }
+
+            function handleGatherCustomInput(inputField) {
+                var text = inputField.value.trim();
+                if (!text) return;
+                var userMsg = "我的情况是：" + text;
+                messages.push({ role: "user", content: userMsg });
+                sendToAI();
+            }
+
+            // --- Helper: Tarot Visuals ---
+
+            function getTarotVisuals(mode, index) {
+                var happyIcons = ["🌟", "🏆", "🕊️", "☀️", "🛡️", "🌿", "💎", "🗝️"];
+                var happyTitles = ["THE BLESSING", "THE STRENGTH", "THE EMPRESS", "THE SUN", "THE CHARIOT", "THE WORLD"];
+                var hardIcons = ["⚔️", "🌪️", "🌑", "🥀", "🐍", "🔥", "⛓️", "👁️"];
+                var hardTitles = ["THE TOWER", "THE HERMIT", "THE SWORDS", "THE MOON", "THE DEVIL", "JUDGMENT"];
+
+                var icons = mode === "happy" ? happyIcons : hardIcons;
+                var titles = mode === "happy" ? happyTitles : hardTitles;
+
+                var icon = icons[(index + sceneRound) % icons.length];
+                var title = titles[Math.floor(Math.random() * titles.length)];
+
+                return { icon: icon, title: title };
+            }
+
+            // --- Render: Scene (Tarot Version) ---
+
+            function renderScene(data) {
+                showStage("stage-scene");
+                updatePhaseIndicator("scene", data.round + " / " + (data.totalRounds || sceneTotal));
+
+                document.body.setAttribute("data-mode", currentMode);
+
+                document.getElementById("scene-round-badge").textContent =
+                    "Chapter " + data.round;
+                document.getElementById("scene-title").textContent = data.title || "";
+                document.getElementById("scene-narrative").innerHTML = escapeHTML(data.narrative || "");
+
+                var container = document.getElementById("scene-choices");
+                container.innerHTML = "";
+
+                if (data.choices && Array.isArray(data.choices)) {
+                    for (var i = 0; i < data.choices.length; i++) {
+                        (function (choice, idx) {
+                            var visual = getTarotVisuals(currentMode, idx);
+
+                            var card = document.createElement("div");
+                            card.className = "tarot-card";
+
+                            card.innerHTML =
+                                '<div class="tarot-content">' +
+                                    '<div class="tarot-header">' + visual.title + '</div>' +
+                                    '<div class="tarot-icon">' + visual.icon + '</div>' +
+                                    '<div class="tarot-text">' + escapeHTML(choice.text) + '</div>' +
+                                    '<div class="tarot-footer">点击选择此命运路径</div>' +
+                                '</div>';
+
+                            card.addEventListener("click", function () {
+                                handleSceneChoice(choice);
+                            });
+                            container.appendChild(card);
+                        })(data.choices[i], i);
+                    }
+                }
+            }
+
+            function handleSceneChoice(choice) {
+                var userMsg = "我选择 " + choice.label + "：" + choice.text;
+                messages.push({ role: "user", content: userMsg });
+                sendToAI();
+            }
+
+            // --- Save History ---
+
+            function saveHistory(endingData) {
+                try {
+                    var history = JSON.parse(localStorage.getItem("innerspace_sandbox_history") || "[]");
+                    history.unshift({
+                        timestamp: new Date().toISOString(),
+                        situation: currentSituation,
+                        mode: currentMode,
+                        title: endingData.title,
+                        narrative: endingData.narrative,
+                        analysis: endingData.analysis,
+                        advice: endingData.advice
+                    });
+                    if (history.length > 20) history = history.slice(0, 20);
+                    localStorage.setItem("innerspace_sandbox_history", JSON.stringify(history));
+                } catch (e) {}
+            }
+
+            // --- Render: Ending ---
+
+            function renderEnding(data) {
+                saveHistory(data);
+                showStage("stage-result");
+                updatePhaseIndicator("ending", "");
+
+                var tagEl = document.getElementById("result-tag");
+                if (currentMode === "happy") {
+                    tagEl.className = "result-tag tag-happy";
+                    tagEl.innerText = "✨ 顺境推演 / 幸福模式";
+                } else {
+                    tagEl.className = "result-tag tag-hard";
+                    tagEl.innerText = "🌪️ 逆境推演 / 困难模式";
+                }
+
+                document.getElementById("result-title").innerText = data.title || "推演结局";
+                document.getElementById("result-narrative").innerHTML = escapeHTML(data.narrative || "");
+                document.getElementById("result-analysis").innerHTML = escapeHTML(data.analysis || "");
+                document.getElementById("result-advice").innerHTML = escapeHTML(data.advice || "");
+            }
+
+            // --- Render: Error ---
+
+            function renderError(message) {
+                showStage("stage-error");
+                hidePhaseIndicator();
+                document.getElementById("error-message").textContent = message;
+            }
+
+            // --- History Rendering ---
+
+            function renderHistory() {
+                var section = document.getElementById("history-section");
+                try {
+                    var history = JSON.parse(localStorage.getItem("innerspace_sandbox_history") || "[]");
+                    if (!history.length) {
+                        section.style.display = "none";
+                        return;
+                    }
+                    section.style.display = "block";
+                    var html = '<h3>历史推演记录</h3><div class="history-list">';
+                    for (var i = 0; i < history.length; i++) {
+                        var item = history[i];
+                        var date = new Date(item.timestamp);
+                        var timeStr = date.getFullYear() + "/" +
+                            String(date.getMonth() + 1).padStart(2, "0") + "/" +
+                            String(date.getDate()).padStart(2, "0") + " " +
+                            String(date.getHours()).padStart(2, "0") + ":" +
+                            String(date.getMinutes()).padStart(2, "0");
+                        var modeClass = item.mode === "happy" ? "tag-happy" : "tag-hard";
+                        var modeLabel = item.mode === "happy" ? "幸福模式" : "困难模式";
+
+                        html += '<div class="history-card" data-index="' + i + '" onclick="toggleHistoryCard(this)">';
+                        html += '<div class="history-card-header">';
+                        html += '<span class="history-card-title">' + escapeHTML(item.title || "推演结局") + '</span>';
+                        html += '<span class="history-mode-tag ' + modeClass + '">' + modeLabel + '</span>';
+                        html += '</div>';
+                        html += '<div class="history-card-meta">' + timeStr + '</div>';
+                        html += '<div class="history-card-situation">' + escapeHTML(item.situation || "") + '</div>';
+                        html += '<div class="history-card-detail">';
+                        if (item.narrative) {
+                            html += '<div class="history-detail-section">';
+                            html += '<div class="history-detail-label">结局</div>';
+                            html += '<div class="history-detail-text history-detail-narrative">' + escapeHTML(item.narrative) + '</div>';
+                            html += '</div>';
+                        }
+                        if (item.analysis) {
+                            html += '<div class="history-detail-section">';
+                            html += '<div class="history-detail-label">因果分析</div>';
+                            html += '<div class="history-detail-text">' + escapeHTML(item.analysis) + '</div>';
+                            html += '</div>';
+                        }
+                        if (item.advice) {
+                            html += '<div class="history-detail-section">';
+                            html += '<div class="history-detail-label">决策参考建议</div>';
+                            html += '<div class="history-detail-text history-detail-advice">' + escapeHTML(item.advice) + '</div>';
+                            html += '</div>';
+                        }
+                        html += '</div>'; // detail
+                        html += '</div>'; // card
+                    }
+                    html += '</div>';
+                    section.innerHTML = html;
+                } catch (e) {
+                    section.style.display = "none";
+                }
+            }
+
+            function toggleHistoryCard(el) {
+                el.classList.toggle("expanded");
+            }
+
+            // --- Restart ---
+
+            function restartSimulation() {
+                clearSession();
+                currentSituation = "";
+                currentMode = "";
+                messages = [];
+                phase = "idle";
+                gatherRound = 0;
+                gatherTotal = 3;
+                sceneRound = 0;
+                sceneTotal = 4;
+                lastStageData = null;
+                lastStageType = "";
+                hidePhaseIndicator();
+                showStage("stage-input");
+                document.getElementById("situation-text").value = "";
+                renderHistory();
+            }
+
+            // --- Session Restore on Load ---
+
+            (function initOnLoad() {
+                var session = loadSession();
+                if (session && session.messages && session.messages.length > 0) {
+                    currentSituation = session.currentSituation || "";
+                    currentMode = session.currentMode || "";
+                    messages = session.messages;
+                    phase = session.phase || "idle";
+                    gatherRound = session.gatherRound || 0;
+                    gatherTotal = session.gatherTotal || 3;
+                    sceneRound = session.sceneRound || 0;
+                    sceneTotal = session.sceneTotal || 4;
+                    lastStageData = session.lastStageData || null;
+                    lastStageType = session.lastStageType || "";
+
+                    if (lastStageType === "gather" && lastStageData) {
+                        renderGather(lastStageData);
+                    } else if (lastStageType === "scene" && lastStageData) {
+                        renderScene(lastStageData);
+                    } else if (phase === "loading" || phase === "gather" || phase === "scene") {
+                        // Was mid-request, re-send
+                        sendToAI();
+                    } else {
+                        hidePhaseIndicator();
+                        showStage("stage-input");
+                        renderHistory();
+                        if (currentSituation) {
+                            document.getElementById("situation-text").value = currentSituation;
+                        }
+                    }
+                } else {
+                    hidePhaseIndicator();
+                    showStage("stage-input");
+                    renderHistory();
+                }
+            })();
+        </script>
+    </body>
+</html>
