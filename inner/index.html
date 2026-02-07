@@ -1027,56 +1027,106 @@
             }
 
             @media (max-width: 768px) {
+                /* Nav */
+                nav {
+                    padding: 12px 20px;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+                .ai-tag { display: none; }
+                .nav-links a {
+                    margin-left: 12px;
+                    font-size: 12px;
+                }
+
+                /* Hero */
                 .hero-section {
                     flex-direction: column;
                     text-align: center;
-                    padding-top: 40px;
-                    padding-bottom: 80px;
+                    padding: 30px 20px 60px;
                     height: auto;
                     min-height: auto;
+                    clip-path: polygon(0 0, 100% 0, 100% 94%, 0 100%);
                 }
                 .hero-text {
-                    padding-right: 0;
-                    margin-bottom: 20px;
                     flex: auto;
                     max-width: 100%;
+                    padding-right: 0;
+                    margin-bottom: 10px;
+                    margin-top: 0;
                 }
+                .hero-text h1 { font-size: 28px; }
+                .hero-text .subtitle { font-size: 14px; }
                 .hero-visual {
-                    height: 300px;
+                    height: 220px;
                     margin-left: 0;
+                    mask-image: none;
                 }
+
+                /* Manifesto */
                 .manifesto-section {
-                    margin-top: 20px;
+                    margin: -30px 20px 0;
                 }
                 .manifesto-box {
                     flex-direction: column;
-                    gap: 30px;
-                    padding: 25px;
+                    gap: 25px;
+                    padding: 22px;
                 }
-                .manifesto-visual {
-                    width: 100%;
+                .manifesto-visual { width: 100%; }
+                .manifesto-text h3 { font-size: 18px; }
+                .id-card-mockup { max-width: 200px; margin: 0 auto; }
+
+                /* Fragment entry section */
+                .fragment-section-warm {
+                    padding: 60px 20px;
                 }
                 .fragment-content-wrapper {
                     flex-direction: column;
-                    gap: 40px;
+                    gap: 30px;
                 }
+                .fragment-text-area h2 { font-size: 28px; }
+                .fragment-text-area .sub-h2 { font-size: 14px; }
                 .bg-texture-text {
-                    font-size: 80px;
-                    right: -20px;
+                    font-size: 60px;
+                    right: -10px;
                     top: 0;
                 }
-                .glass-panel-container {
-                    width: 100%;
+                .glass-panel-container { width: 100%; }
+
+                /* Sandbox */
+                .sandbox-section-mystery {
+                    padding: 60px 20px;
                 }
                 .sandbox-content {
                     flex-direction: column;
                     text-align: center;
-                    gap: 30px;
+                    gap: 25px;
+                }
+                .sandbox-text h2 { font-size: 26px; }
+                .sandbox-text p {
+                    font-size: 14px;
+                    border-left: none;
+                    padding-left: 0;
+                }
+                .sandbox-visual {
+                    width: 100%;
+                    height: 150px;
                 }
                 .bg-texture-text-sim-dark {
-                    font-size: 60px;
+                    font-size: 50px;
                     left: 0;
                     top: 0;
+                }
+                .btn-sandbox-neon {
+                    width: 100%;
+                    justify-content: center;
+                    padding: 14px 24px;
+                    font-size: 14px;
+                }
+                .btn-fragment-warm {
+                    width: 100%;
+                    justify-content: center;
+                    padding: 14px 24px;
                 }
             }
         </style>
